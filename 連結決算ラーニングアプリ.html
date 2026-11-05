@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>はじめての連結決算 ラーニングアプリ</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("theme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<script>
+  (() => {
+    try {
+      if (new URLSearchParams(window.location.search).get("theme")) return;
+      const saved = localStorage.getItem("learn-ui:theme");
+      if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+    } catch (e) { /* storage unavailable */ }
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, "BIZ UDPGothic", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+button, input, select { font: inherit; color: inherit; }
+.mono, .num { font-variant-numeric: tabular-nums; }
+header.top {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px; min-height: 60px;
+  background: var(--cp-panel-strong);
+  border-bottom: 1px solid var(--cp-border);
+}
+.brand { font-weight: 700; font-size: 1.125rem; line-height: 1.3; }
+.brand small { display: block; font-weight: 400; font-size: 0.8125rem; color: var(--cp-text-muted); }
+.logo {
+  width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+  background: var(--cp-accent); color: var(--cp-accent-fg); font-weight: 800; font-size: 1rem;
+}
+.prog { margin-left: auto; display: flex; align-items: center; gap: 10px; min-width: 260px; }
+.prog .bar { flex: 1; }
+.bar { height: 8px; background: var(--cp-surface-soft); border: 1px solid var(--cp-border); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--cp-accent); transition: width .4s; }
+.prog span { font-size: 0.8125rem; color: var(--cp-text-muted); white-space: nowrap; }
+.iconbtn {
+  border: 1px solid var(--cp-border); background: var(--cp-surface); border-radius: .625rem;
+  padding: 6px 10px; cursor: pointer; font-size: 0.875rem; color: var(--cp-text);
+}
+.iconbtn:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.layout { display: grid; grid-template-columns: 264px minmax(0, 1fr); }
+nav.side {
+  position: sticky; top: 60px; height: calc(100vh - 60px); overflow: auto;
+  padding: 14px 10px 40px; border-right: 1px solid var(--cp-border); background: var(--cp-bg-elevated);
+}
+nav.side .grp { font-size: 0.75rem; color: var(--cp-text-soft); margin: 14px 10px 4px; letter-spacing: .08em; }
+nav.side button {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  border: 0; background: transparent; padding: 7px 10px; border-radius: .625rem; cursor: pointer; font-size: 0.90625rem; line-height: 1.4;
+}
+nav.side button:hover { background: var(--cp-accent-soft); }
+nav.side button.active { background: var(--cp-highlight); color: var(--cp-accent); font-weight: 700; }
+nav.side .tag {
+  flex: 0 0 auto; min-width: 46px; text-align: center; font-size: 0.71875rem; font-weight: 700;
+  border: 1px solid var(--cp-border); border-radius: 6px; padding: 1px 4px; color: var(--cp-text-muted); background: var(--cp-surface);
+}
+nav.side button.active .tag { border-color: var(--cp-accent); color: var(--cp-accent); }
+nav.side .ck { margin-left: auto; color: var(--cp-success); font-weight: 700; }
+main { padding: 26px 34px 90px; max-width: 1160px; width: 100%; }
+h1 { font-size: 1.875rem; line-height: 1.35; margin: 4px 0 6px; }
+h2 { font-size: 1.3125rem; margin: 0 0 10px; line-height: 1.4; }
+h3 { font-size: 1.09375rem; margin: 14px 0 6px; }
+p { margin: 6px 0; }
+.kicker { color: var(--cp-accent); font-weight: 700; font-size: 0.84375rem; letter-spacing: .06em; }
+.lead { color: var(--cp-text-muted); font-size: 1.0625rem; }
+.card {
+  background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px;
+  padding: 18px 22px; margin: 16px 0;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+.goal { background: var(--cp-accent-soft); border: 1px solid var(--cp-highlight); border-radius: 16px; padding: 12px 18px; margin: 12px 0; }
+.goal b { color: var(--cp-accent); }
+.analogy { border-left: 4px solid var(--cp-accent); background: var(--cp-surface-soft); border-radius: 0 .625rem .625rem 0; padding: 12px 16px; margin: 12px 0; }
+.analogy .lab, .cfo .lab { font-weight: 700; font-size: 0.875rem; color: var(--cp-accent); display: block; margin-bottom: 2px; }
+.cfo { border: 1px solid var(--cp-border-strong); border-radius: 16px; padding: 14px 18px; background: var(--cp-bg-elevated); margin: 18px 0; }
+.cfo .lab { color: var(--cp-text); }
+.cfo .lab::before { content: "CFO"; display: inline-block; margin-right: 8px; padding: 0 6px; border-radius: 6px; background: var(--cp-text); color: var(--cp-surface); font-size: 0.75rem; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile {
+  border: 1px solid var(--cp-border); border-radius: 16px; padding: 14px 16px; background: var(--cp-surface);
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+.tile.click { cursor: pointer; transition: border-color .15s, transform .15s; }
+.tile.click:hover { border-color: var(--cp-accent); transform: translateY(-1px); }
+.tile .t { font-weight: 700; }
+.tile .s { font-size: 0.875rem; color: var(--cp-text-muted); }
+.pill {
+  display: inline-block; font-size: 0.8125rem; font-weight: 700; padding: 1px 9px; border-radius: 99px;
+  border: 1px solid var(--cp-border); color: var(--cp-text-muted); background: var(--cp-surface-soft);
+}
+.pill.acc { border-color: var(--cp-accent); color: var(--cp-accent); background: var(--cp-accent-soft); }
+.pill.ok { border-color: var(--cp-success); color: var(--cp-success); }
+.pill.warn { border-color: var(--cp-warning); color: var(--cp-warning); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--cp-accent); cursor: pointer;
+  background: var(--cp-accent); color: var(--cp-accent-fg); border-radius: .625rem; padding: 7px 16px; font-weight: 600; font-size: 0.9375rem;
+}
+.btn:hover { background: var(--cp-accent-hover); border-color: var(--cp-accent-hover); }
+.btn.ghost { background: transparent; color: var(--cp-accent); }
+.btn.ghost:hover { background: var(--cp-accent-soft); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+.seg { display: inline-flex; border: 1px solid var(--cp-border); border-radius: .625rem; overflow: hidden; }
+.seg button { border: 0; background: var(--cp-surface); padding: 7px 14px; cursor: pointer; font-size: 0.9375rem; }
+.seg button + button { border-left: 1px solid var(--cp-border); }
+.seg button.on { background: var(--cp-accent); color: var(--cp-accent-fg); font-weight: 700; }
+table.fs { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+table.fs th, table.fs td { padding: 5px 10px; border-bottom: 1px solid var(--cp-border); }
+table.fs th { text-align: center; font-size: 0.84375rem; color: var(--cp-text-muted); font-weight: 700; background: var(--cp-surface-soft); }
+table.fs td.n, table.fs th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.fs tr.tot td { font-weight: 700; background: var(--cp-surface-soft); }
+table.fs tr.sec td { font-weight: 700; color: var(--cp-accent); background: transparent; border-bottom: 2px solid var(--cp-accent); padding-top: 12px; }
+table.fs td.adj { color: var(--cp-accent); }
+table.fs td.res { font-weight: 700; }
+table.fs td.flash { background: var(--cp-highlight); transition: background .3s; }
+table.fs tr.struck td { text-decoration: line-through; color: var(--cp-text-soft); }
+.neg { color: var(--cp-danger); }
+.pos { color: var(--cp-success); }
+.muted { color: var(--cp-text-muted); }
+.small { font-size: 0.875rem; }
+.tbl-wrap { overflow-x: auto; }
+.ctrl { display: grid; grid-template-columns: 210px 1fr 110px; gap: 12px; align-items: center; margin: 8px 0; }
+.ctrl label { font-weight: 600; font-size: 0.9375rem; }
+.ctrl output { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--cp-accent); }
+input[type=range] { width: 100%; accent-color: var(--cp-accent); }
+.hbar { display: flex; height: 34px; border-radius: .625rem; overflow: hidden; border: 1px solid var(--cp-border); background: var(--cp-surface-soft); }
+.hbar > div { display: flex; align-items: center; justify-content: center; font-size: 0.8125rem; font-weight: 700; white-space: nowrap; overflow: hidden; transition: width .35s; color: var(--cp-surface); }
+.c-gray { background: var(--cp-text-soft); }
+.c-acc { background: var(--cp-accent); }
+.c-warn { background: var(--cp-warning); color: var(--cp-text) !important; }
+.c-ok { background: var(--cp-success); }
+.c-link { background: var(--cp-link); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.84375rem; color: var(--cp-text-muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.barlab { font-size: 0.875rem; font-weight: 700; margin: 10px 0 4px; display: flex; justify-content: space-between; }
+.journal { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+.journal td { padding: 5px 10px; border-bottom: 1px dashed var(--cp-border); }
+.journal td.acct { background: var(--cp-accent-soft); font-weight: 600; }
+.journal th { font-size: 0.8125rem; color: var(--cp-text-muted); text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--cp-border); }
+.journal td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--cp-border); border-radius: 99px; padding: 5px 14px; cursor: pointer; background: var(--cp-surface); font-size: 0.9375rem;
+}
+.chip.sel { border-color: var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-accent); font-weight: 700; }
+.chip.right { border-color: var(--cp-success); color: var(--cp-success); }
+.chip.wrong { border-color: var(--cp-danger); color: var(--cp-danger); }
+.quiz { border: 1px solid var(--cp-border); border-radius: 16px; padding: 14px 18px; margin: 18px 0; background: var(--cp-bg-elevated); }
+.quiz .q { font-weight: 700; margin-bottom: 8px; }
+.quiz .q::before { content: "確認問題"; display: inline-block; margin-right: 8px; font-size: 0.75rem; padding: 0 7px; border-radius: 6px; background: var(--cp-accent); color: var(--cp-accent-fg); vertical-align: 2px; }
+.opts { display: grid; gap: 8px; }
+.opt {
+  text-align: left; border: 1px solid var(--cp-border); background: var(--cp-surface); border-radius: .625rem; padding: 8px 12px; cursor: pointer; font-size: 0.9375rem;
+}
+.opt:hover { border-color: var(--cp-accent); }
+.opt.right { border-color: var(--cp-success); background: var(--cp-surface-soft); }
+.opt.right::after { content: "　○ 正解"; color: var(--cp-success); font-weight: 700; }
+.opt.wrong { border-color: var(--cp-danger); }
+.opt.wrong::after { content: "　× ちがいます"; color: var(--cp-danger); font-weight: 700; }
+.fb { margin-top: 8px; font-size: 0.9375rem; color: var(--cp-text-muted); display: none; }
+.fb.show { display: block; }
+.next-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--cp-border); flex-wrap: wrap; }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
+.flow .st { flex: 1 1 150px; border: 1px solid var(--cp-border); background: var(--cp-surface); border-radius: .625rem; padding: 10px 12px; font-size: 0.875rem; }
+.flow .st b { display: block; color: var(--cp-accent); font-size: 0.9375rem; }
+.flow .arr { align-self: center; color: var(--cp-text-soft); font-weight: 700; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi { border: 1px solid var(--cp-border); border-radius: 16px; padding: 12px 14px; background: var(--cp-surface); }
+.kpi .l { font-size: 0.8125rem; color: var(--cp-text-muted); }
+.kpi .v { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.kpi .d { font-size: 0.8125rem; }
+.switches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.sw {
+  display: flex; gap: 8px; align-items: flex-start; border: 1px solid var(--cp-border); border-radius: .625rem; padding: 8px 10px; cursor: pointer; background: var(--cp-surface); font-size: 0.875rem; line-height: 1.4;
+}
+.sw input { accent-color: var(--cp-accent); margin-top: 3px; }
+.sw.on { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+.sw b { display: block; font-size: 0.90625rem; }
+.cbars .row { display: grid; grid-template-columns: 150px 1fr 96px; gap: 10px; align-items: center; margin: 4px 0; font-size: 0.875rem; }
+.cbars .track { position: relative; height: 18px; background: var(--cp-surface-soft); border-radius: 6px; overflow: hidden; }
+.cbars .fill { position: absolute; top: 0; bottom: 0; border-radius: 6px; transition: all .35s; }
+.cbars .mid { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--cp-border-strong); left: 50%; }
+.cbars .val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.region { margin: 12px 0 4px; font-weight: 700; color: var(--cp-text-muted); font-size: 0.875rem; }
+.cc { display: flex; gap: 10px; align-items: flex-start; }
+.code {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+  font-weight: 800; font-size: 0.84375rem; background: var(--cp-surface-soft); border: 1px solid var(--cp-border); color: var(--cp-text);
+}
+.tile.sel { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+.tl { position: relative; margin-left: 10px; padding-left: 20px; border-left: 2px solid var(--cp-border); }
+.tl .it { position: relative; margin: 0 0 12px; }
+.tl .it::before { content: ""; position: absolute; left: -27px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--cp-accent); }
+.tl .d { font-weight: 700; color: var(--cp-accent); font-size: 0.875rem; }
+.search { width: 100%; padding: 9px 12px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); }
+.bigscore { font-size: 2.75rem; font-weight: 800; color: var(--cp-accent); font-variant-numeric: tabular-nums; }
+.check-ok { color: var(--cp-success); font-weight: 700; }
+.check-ng { color: var(--cp-danger); font-weight: 700; }
+.wf .row { display: grid; grid-template-columns: 260px 1fr 90px; gap: 10px; align-items: center; margin: 5px 0; font-size: 0.90625rem; }
+.wf .track { position: relative; height: 22px; }
+.wf .blk { position: absolute; top: 0; bottom: 0; border-radius: 4px; transition: all .35s; }
+.note { font-size: 0.84375rem; color: var(--cp-text-muted); }
+.hide { display: none !important; }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.side { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 4px; border-right: 0; border-bottom: 1px solid var(--cp-border); }
+  nav.side .grp { display: none; }
+  nav.side button { width: auto; }
+  .grid2, .grid3, .grid4, .kpis, .switches { grid-template-columns: 1fr; }
+  .ctrl { grid-template-columns: 1fr; }
+  main { padding: 18px 16px 80px; }
+  .prog { min-width: 140px; }
+}
+</style>
+<style id="readability">
+/* ============ 読みやすさレイヤー（3つのアプリ共通） ============
+   本文16px・行間1.8／補足文は最小13px／和文の禁則・約物詰め・フレーズ改行／
+   ダークモードの補足文コントラストをAA以上に／文字サイズ切替 */
+html { font-size: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html[data-fs="l"] { font-size: 112.5%; }
+html[data-fs="xl"] { font-size: 125%; }
+body {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  line-break: strict;
+  overflow-wrap: break-word;
+  font-kerning: normal;
+}
+h1, h2, h3, .kicker, .brand, nav.side button, .tile .t, .btn, .chip, .seg button, .pill, .kpi .l, table.fs th, .dcard .dh b {
+  font-feature-settings: "palt" 1;
+}
+h1, h2, h3, .lead, .brand, nav.side button, .tile .t, .btn, .chip, .kpi .l, .kpi .d, .legend, table.fs th, .quiz .q, .goal, .dcard .dh b {
+  word-break: auto-phrase;
+}
+h1, h2, h3 { text-wrap: balance; letter-spacing: 0.01em; }
+h1 { line-height: 1.4; margin: 6px 0 10px; }
+h2 { line-height: 1.45; margin: 0 0 12px; }
+h3 { line-height: 1.5; margin: 18px 0 8px; }
+p, li, .lead, .analogy, .cfo, .goal, .fb, .note, .tile .s { text-wrap: pretty; }
+main p, main li { max-width: 46em; }
+main p { margin: 0.55em 0; }
+.lead { max-width: 44em; line-height: 1.85; margin: 6px 0 4px; }
+main ul, main ol { padding-left: 1.4em; }
+main li { margin: 0.3em 0; }
+.small, .note { line-height: 1.7; letter-spacing: 0.03em; }
+.note { margin: 10px 0; }
+.tile .s, .kpi .l, .kpi .d, .legend, .prog span, .brand small { letter-spacing: 0.03em; }
+.tile .s { line-height: 1.7; }
+@media (min-width: 981px) {
+  .layout { grid-template-columns: 272px minmax(0, 1fr); }
+  nav.side { top: var(--hdr-h, 60px); height: calc(100vh - var(--hdr-h, 60px)); }
+}
+nav.side button { line-height: 1.45; padding: 8px 10px; }
+nav.side .grp { font-weight: 700; letter-spacing: 0.1em; }
+table.fs th, table.fs td { padding: 7px 12px; line-height: 1.6; }
+table.fs th { letter-spacing: 0.04em; }
+.kpi .v, table.fs td.n, .num, output, .cbars .val, .bigscore, .journal td.n { font-variant-numeric: tabular-nums lining-nums; }
+.kpi .v { line-height: 1.35; }
+.quiz .q { line-height: 1.6; }
+.opt { padding: 10px 14px; line-height: 1.6; }
+.fb { color: var(--cp-text); line-height: 1.75; }
+.sw { line-height: 1.55; }
+.analogy, .cfo, .goal { line-height: 1.8; }
+.brand { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand small { overflow: hidden; text-overflow: ellipsis; }
+.prog { min-width: 200px; }
+:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 2px; }
+
+/* --- app-specific components (controller / stock apps) --- */
+.flip .en { font-size: 0.96875rem; }
+pre.mail { font-size: 0.875rem; line-height: 1.75; }
+.dcard .dh { font-size: 1rem; }
+.dcard .dg p { line-height: 1.7; }
+.dcard .dp { font-size: 0.875rem; line-height: 1.7; }
+.sortq .row { font-size: 0.9375rem; }
+.sortq .seg button { font-size: 0.84375rem; }
+.sortq .ex { font-size: 0.875rem; line-height: 1.7; }
+.tt { font-size: 0.8125rem; line-height: 1.6; }
+.grid4 .tile select { font-size: 0.84375rem; }
+/* SVG chart text (px: scales with the chart itself) */
+.cb-txt { font-size: 12.5px; }
+.rd-txt { font-size: 12px; }
+.cb-lab { font-size: 14px; }
+.g-tt { font-size: 14px; }
+.g-ax, .g-pl { font-size: 12px; }
+.g-hl, .mk-t { font-size: 11.5px; }
+
+/* --- secondary text: WCAG AA contrast in dark mode --- */
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .lead,
+html[data-theme="dark"] .note,
+html[data-theme="dark"] .legend,
+html[data-theme="dark"] .tile .s,
+html[data-theme="dark"] .kpi .l,
+html[data-theme="dark"] .prog span,
+html[data-theme="dark"] .brand small,
+html[data-theme="dark"] table.fs th,
+html[data-theme="dark"] .journal th,
+html[data-theme="dark"] nav.side .grp,
+html[data-theme="dark"] .region,
+html[data-theme="dark"] .sortq .ex,
+html[data-theme="dark"] .fsz .lab { color: var(--cp-text-soft); }
+html[data-theme="dark"] nav.side button:not(.active) .tag { color: var(--cp-text-soft); }
+html[data-theme="dark"] .pill:not(.acc):not(.ok):not(.warn):not(.s-jp):not(.s-us):not(.s-if) { color: var(--cp-text-soft); }
+html[data-theme="dark"] .cb-txt, html[data-theme="dark"] .rd-txt, html[data-theme="dark"] .g-ax,
+html[data-theme="dark"] .g-pl, html[data-theme="dark"] .g-hl { fill: var(--cp-text-soft); }
+
+/* --- text size switcher --- */
+.fsz { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.fsz .lab { font-size: 0.8125rem; color: var(--cp-text-muted); margin-right: 2px; white-space: nowrap; }
+.fsz button { border: 1px solid var(--cp-border); background: var(--cp-surface); color: var(--cp-text); border-radius: .625rem;
+  padding: 3px 9px; cursor: pointer; line-height: 1.3; font-feature-settings: "palt" 1; }
+.fsz button[data-fs="m"] { font-size: 0.8125rem; }
+.fsz button[data-fs="l"] { font-size: 0.9375rem; }
+.fsz button[data-fs="xl"] { font-size: 1.0625rem; }
+.fsz button:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.fsz button.on, .fsz button.on:hover { background: var(--cp-accent); border-color: var(--cp-accent); color: var(--cp-accent-fg); font-weight: 700; }
+.iconbtn { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 1240px) { .prog { min-width: 140px; } .fsz .lab { display: none; } }
+@media (max-width: 980px) { header.top { flex-wrap: wrap; } .prog { min-width: 120px; } main p, main li, .lead { max-width: none; } }
+</style>
+<style id="shell-ux">
+/* ============ 操作性レイヤー（4つのアプリ共通） ============
+   スマホ・タブレットの目次ドロワー／表のはみ出し防止／ページ先頭へ／印刷 */
+main { min-width: 0; }
+.nowrap1 td:first-child, .nowrap1 th:first-child { white-space: nowrap; }
+main a { color: var(--cp-link); text-underline-offset: 2px; }
+main a:hover { color: var(--cp-accent); }
+.navbtn, .hbreak { display: none; }
+.navbtn { flex: 0 0 auto; white-space: nowrap; }
+#themeBtn .lab { margin-left: 2px; }
+.totop {
+  position: fixed; right: 18px; bottom: 18px; z-index: 30; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--cp-border); background: var(--cp-surface); color: var(--cp-text); box-shadow: var(--cp-shadow);
+  cursor: pointer; font-size: 0.875rem; opacity: 0; pointer-events: none; transition: opacity .2s, border-color .15s;
+}
+.totop.show { opacity: 1; pointer-events: auto; }
+.totop:hover { border-color: var(--cp-accent); color: var(--cp-accent); }
+.qrev { border: 1px solid var(--cp-border); border-left: 4px solid var(--cp-danger); border-radius: 12px; padding: 10px 14px; margin: 10px 0; background: var(--cp-surface); }
+.qrev .qq { font-weight: 700; line-height: 1.6; }
+.qrev .qa { font-size: 0.9375rem; margin-top: 4px; }
+.qrev .qa.ng { color: var(--cp-danger); }
+.qrev .qa.ok { color: var(--cp-success); font-weight: 700; }
+.qrev .qe { font-size: 0.9375rem; margin-top: 6px; line-height: 1.75; }
+.xlref { display: inline-block; margin: 2px 0 8px; padding: 3px 12px; border: 1px solid var(--cp-border); border-radius: 99px; background: var(--cp-surface); font-size: 0.84375rem; color: var(--cp-text-muted); }
+.xlref b { color: var(--cp-text); }
+@media print { .xlref { display: none; } }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .grid2, .grid3, .grid4, .kpis, .switches { grid-template-columns: minmax(0, 1fr); }
+  .grid2 > *, .grid3 > *, .grid4 > * { min-width: 0; }
+  main div:has(> table.fs), main div:has(> table.journal) { overflow-x: auto; }
+  .wf .row { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 4.5rem; }
+  header.top { gap: 8px 10px; padding: 8px 12px; }
+  .logo { width: 32px; height: 32px; order: 0; }
+  .brand { order: 1; flex: 1 1 0; font-size: 1rem; }
+  .brand small { display: none; }
+  .navbtn { order: 2; display: inline-flex; align-items: center; gap: 4px; }
+  .hbreak { order: 3; display: block; flex-basis: 100%; height: 0; }
+  .prog { order: 4; flex: 1 1 100px; min-width: 0; margin-left: 0; }
+  .fsz { order: 5; }
+  #themeBtn { order: 6; }
+  #themeBtn .lab { display: none; }
+  nav.side {
+    display: none; position: fixed; z-index: 25; top: var(--hdr-h, 60px); left: 0; right: 0;
+    height: auto; max-height: calc(100vh - var(--hdr-h, 60px)); max-height: calc(100dvh - var(--hdr-h, 60px)); overflow: auto;
+    padding: 6px 10px 24px; border-right: 0; border-bottom: 1px solid var(--cp-border);
+    box-shadow: var(--cp-shadow); background: var(--cp-bg-elevated);
+  }
+  body.nav-open nav.side { display: block; }
+  nav.side .grp { display: block; }
+  nav.side button { width: 100%; }
+  main { padding: 18px 16px 90px; }
+  .totop { right: 12px; bottom: 12px; }
+}
+@media print {
+  header.top, nav.side, .next-row, .totop, .navbtn { display: none !important; }
+  .layout { display: block; }
+  main { padding: 0; max-width: none; }
+  body { background: var(--cp-surface); }
+  .card, .tile, .quiz, .cfo, .analogy, .goal, .kpi, .flow .st, table.fs tr, svg { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  .tbl-wrap { overflow: visible; }
+}
+</style>
+<script>
+  (() => {
+    try { const fs = localStorage.getItem("learn-ui:fs"); if (fs === "l" || fs === "xl") document.documentElement.setAttribute("data-fs", fs); } catch (e) { /* storage unavailable */ }
+  })();
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="logo" aria-hidden="true">連</div>
+  <div class="brand">はじめての連結決算 ラーニングアプリ<small>10か国に展開する「サクラ・グローバル・グループ」で学ぶ</small></div>
+  <button class="iconbtn navbtn" id="navBtn" type="button" aria-controls="nav" aria-expanded="false">☰ 目次</button>
+  <span class="hbreak" aria-hidden="true"></span>
+  <div class="prog" title="完了したレッスンの数">
+    <div class="bar"><i id="progbar"></i></div>
+    <span id="progtxt">0 / 0 完了</span>
+  </div>
+  <div class="fsz" role="group" aria-label="文字の大きさ"><span class="lab">文字サイズ</span><button type="button" data-fs="m" title="標準の文字サイズ">標準</button><button type="button" data-fs="l" title="少し大きく">大</button><button type="button" data-fs="xl" title="もっと大きく">特大</button></div>
+  <button class="iconbtn" id="themeBtn" type="button" aria-label="ライト／ダーク切り替え" title="ライト／ダーク切り替え">◐<span class="lab"> 表示切替</span></button>
+</header>
+<div class="layout">
+  <nav class="side" id="nav" aria-label="レッスン一覧"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+<script>
+  (() => {
+    const root = document.documentElement, hdr = document.querySelector("header.top");
+    const syncHdr = () => { if (hdr) root.style.setProperty("--hdr-h", hdr.offsetHeight + "px"); };
+    const mark = () => {
+      const cur = root.getAttribute("data-fs") || "m";
+      document.querySelectorAll(".fsz button").forEach((b) => { const on = b.dataset.fs === cur; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+      syncHdr();
+    };
+    document.querySelectorAll(".fsz button").forEach((b) => b.addEventListener("click", () => {
+      const v = b.dataset.fs;
+      if (v === "m") root.removeAttribute("data-fs"); else root.setAttribute("data-fs", v);
+      try { localStorage.setItem("learn-ui:fs", v); } catch (e) { /* storage unavailable */ }
+      mark();
+    }));
+    window.addEventListener("resize", syncHdr);
+    mark();
+  })();
+</script>
+<script>
+  (() => {
+    const root = document.documentElement;
+    // remember the light/dark choice (the button itself is wired in each app)
+    try {
+      new MutationObserver(() => {
+        try { localStorage.setItem("learn-ui:theme", root.getAttribute("data-theme") || "light"); } catch (e) { /* storage unavailable */ }
+      }).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    } catch (e) { /* MutationObserver unavailable */ }
+    // favicon drawn from the header logo in the theme accent color
+    const logo = document.querySelector(".logo");
+    if (logo) {
+      const cs = getComputedStyle(root);
+      const acc = cs.getPropertyValue("--cp-accent").trim(), fg = cs.getPropertyValue("--cp-accent-fg").trim();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${acc}"/><text x="32" y="44" font-size="34" font-weight="700" text-anchor="middle" fill="${fg}" font-family="Segoe UI, Yu Gothic UI, Meiryo, sans-serif">${logo.textContent.trim()}</text></svg>`;
+      let icon = document.querySelector('link[rel="icon"]');
+      if (!icon) { icon = document.createElement("link"); icon.rel = "icon"; document.head.appendChild(icon); }
+      icon.href = "data:image/svg+xml," + encodeURIComponent(svg);
+    }
+    // phones / tablets: the lesson list opens as a drawer from the header
+    const navBtn = document.getElementById("navBtn");
+    const setNav = (open) => {
+      document.body.classList.toggle("nav-open", open);
+      if (navBtn) navBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    if (navBtn) navBtn.addEventListener("click", (e) => { e.stopPropagation(); setNav(!document.body.classList.contains("nav-open")); });
+    document.addEventListener("click", (e) => {
+      if (!document.body.classList.contains("nav-open")) return;
+      if (e.target.closest("#nav [data-go]") || !e.target.closest("#nav")) setNav(false);
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") setNav(false); });
+    // back-to-top button for long lessons
+    const up = document.createElement("button");
+    up.type = "button"; up.className = "totop"; up.textContent = "▲"; up.title = "ページの先頭へ"; up.setAttribute("aria-label", "ページの先頭へ");
+    up.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    document.body.appendChild(up);
+    window.addEventListener("scroll", () => up.classList.toggle("show", window.scrollY > 900), { passive: true });
+    // deep links: #lesson-id in the address bar (bookmarks, sharing, browser back/forward)
+    const baseTitle = document.title;
+    window.LearnShell = {
+      hashId() { try { return decodeURIComponent(window.location.hash.slice(1)); } catch (e) { return ""; } },
+      sync(id, title) {
+        document.title = title && id !== "welcome" ? `${title}｜${baseTitle}` : baseTitle;
+        try {
+          const h = "#" + encodeURIComponent(id);
+          if (!window.location.hash) history.replaceState(null, "", h);
+          else if (window.location.hash !== h) history.pushState(null, "", h);
+        } catch (e) { /* history API unavailable (sandboxed preview) */ }
+      },
+      start(lessons, fallback) { const h = this.hashId(); return lessons.some((l) => l.id === h) ? h : fallback; },
+      xlRef(root, name) {
+        const h1 = root.querySelector("h1");
+        if (!h1 || !name) return;
+        const p = document.createElement("p");
+        p.className = "xlref";
+        p.innerHTML = `<span aria-hidden="true">📗</span> Excel版の対応シート：「<b>${name}</b>」`;
+        h1.insertAdjacentElement("afterend", p);
+      },
+    };
+    const onHash = () => {
+      const h = window.LearnShell.hashId();
+      if (!h || typeof go !== "function" || typeof LESSONS === "undefined") return;
+      if (LESSONS.some((l) => l.id === h) && h !== current) go(h);
+    };
+    window.addEventListener("popstate", onHash);
+    window.addEventListener("hashchange", onHash);
+    // shared quiz runner: one question at a time, score, review of missed questions, retry only the missed ones
+    window.LearnQuiz = (box, all, cfg = {}) => {
+      const AB = "ABCD";
+      let qs = all, i = 0, score = 0, answered = false, wrong = [], retry = false;
+      const title = (id) => (typeof LESSONS !== "undefined" && (LESSONS.find((l) => l.id === id) || {}).title) || "";
+      const review = (q) => (q.lesson && title(q.lesson) ? `<a href="#" data-go="${q.lesson}">→「${title(q.lesson)}」を復習</a>` : "");
+      const run = (list, isRetry) => { qs = list; i = 0; score = 0; wrong = []; retry = isRetry; show(); };
+      const result = () => {
+        const n = qs.length;
+        let best = null;
+        if (!retry && cfg.store && cfg.key) { best = Math.max(cfg.store.get(cfg.key, 0), score); cfg.store.set(cfg.key, best); }
+        const msg = retry ? (score === n ? "全問クリア！ 苦手だった問題も、もう大丈夫です。" : "あと少し。解説とレッスンをもう一度読んでから、再チャレンジしよう。") : (cfg.msg ? cfg.msg(score, n) : "");
+        const rev = wrong.map(({ q, j }) => `<div class="qrev"><div class="qq">${q.no ? `Q${q.no}　` : ""}${q.q}</div>
+          <div class="qa ng">あなたの答え：${AB[j]}．${q.opts[j]}</div><div class="qa ok">正解：${AB[q.ans]}．${q.opts[q.ans]}</div>
+          <div class="qe">${q.exp}${review(q) ? "　" + review(q) : ""}</div></div>`).join("");
+        box.innerHTML = `<div style="text-align:center"><div class="kicker">${retry ? "RETRY RESULT" : "RESULT"}</div><div class="bigscore">${score} / ${n}</div>
+          <p><b>${msg}</b></p>${best !== null ? `<p class="small muted">これまでの最高点：${best} 点</p>` : ""}
+          <div class="btnrow" style="justify-content:center">${wrong.length ? `<button class="btn" type="button" data-qz="wrong">間違えた${wrong.length}問だけ解き直す</button>` : ""}
+          <button class="btn${wrong.length ? " ghost" : ""}" type="button" data-qz="all">もう一度チャレンジ（${all.length}問）</button></div></div>
+          ${wrong.length ? `<h3>間違えた問題の振り返り（${wrong.length}問）</h3><p class="small muted">正解と解説を読んで、必要ならレッスンに戻って復習しましょう。</p>${rev}` : `<p class="small muted" style="text-align:center">全問正解です。用語集やExcelの練習問題で、さらに力をのばしましょう。</p>`}`;
+        const missed = wrong.map((w) => w.q);
+        const bw = box.querySelector('[data-qz="wrong"]');
+        if (bw) bw.addEventListener("click", () => run(missed, true));
+        box.querySelector('[data-qz="all"]').addEventListener("click", () => run(all, false));
+      };
+      const show = () => {
+        if (i >= qs.length) { result(); return; }
+        const q = qs[i]; answered = false;
+        box.innerHTML = `<div class="small muted">${retry ? "解き直し　｜　" : ""}問題 ${i + 1} / ${qs.length}　｜　正解 ${score}${cfg.pill ? "　｜　" + cfg.pill(q) : ""}</div><div class="bar" style="margin:6px 0 12px"><i style="width:${(i / qs.length) * 100}%"></i></div>
+          <h2>${q.q}</h2><div class="opts">${q.opts.map((o, j) => `<button type="button" class="opt" data-j="${j}">${AB[j]}．${o}</button>`).join("")}</div>
+          <div class="fb" id="qfb"></div><div class="btnrow"><button class="btn hide" type="button" id="qnext">${i + 1 === qs.length ? "結果を見る" : "次の問題へ ▶"}</button></div>`;
+        box.querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => {
+          if (answered) return; answered = true;
+          const j = +b.dataset.j;
+          if (j === q.ans) score += 1; else wrong.push({ q, j });
+          box.querySelectorAll(".opt").forEach((x) => { const jj = +x.dataset.j; if (jj === q.ans) x.classList.add("right"); else if (jj === j) x.classList.add("wrong"); });
+          const fb = box.querySelector("#qfb");
+          fb.innerHTML = `<b>${j === q.ans ? "正解！" : "おしい！ 正解は " + AB[q.ans]}</b>　${q.exp}${review(q) ? "　" + review(q) : ""}`;
+          fb.classList.add("show");
+          box.querySelector("#qnext").classList.remove("hide");
+        }));
+        box.querySelector("#qnext").addEventListener("click", () => { i += 1; show(); });
+      };
+      run(all, false);
+    };
+  })();
+</script>
+<script>
+"use strict";
+const D = {"base": {"P": {"現金預金": 3000, "売掛金": 2000, "棚卸資産": 1500, "S社株式": 1400, "有形固定資産": 4100, "買掛金": 1500, "借入金": 3000, "資本金": 5000, "利益剰余金": 2500, "売上高": 10000, "売上原価": 7000, "販売費及び一般管理費": 2000, "受取配当金": 80, "資産合計": 12000, "負債・純資産合計": 12000, "売上総利益": 3000, "営業利益": 1000, "当期純利益": 1080}, "S": {"現金預金": 600, "売掛金": 700, "棚卸資産": 800, "S社株式": 0, "有形固定資産": 900, "買掛金": 600, "借入金": 700, "資本金": 1000, "利益剰余金": 700, "売上高": 4000, "売上原価": 3000, "販売費及び一般管理費": 700, "受取配当金": 0, "資産合計": 3000, "負債・純資産合計": 3000, "売上総利益": 1000, "営業利益": 300, "当期純利益": 300}, "prm": {"own": 0.8, "price": 1400, "cap": 1000, "re0": 500, "years": 10, "div": 100, "icSales": 1000, "icAR": 200, "icInv": 250, "margin": 0.2}}, "s1": [["現金預金", "×", "銀行にある本物のお金。グループ内で二重にはなっていません。"], ["売掛金", "○", "P社の売掛金のうち200はS社に対するもの（グループ内の貸し借り）。STEP3で消します。"], ["棚卸資産", "○", "S社の在庫のうちP社から仕入れた250には、P社のもうけ50が入っています。STEP4で消します。"], ["S社株式", "○", "P社のS社株式と、S社の資本（資本金など）は同じものの“表と裏”。STEP2で消します。"], ["有形固定資産", "×", "建物や機械は実在する財産。二重ではありません。"], ["買掛金", "○", "S社の買掛金のうち200はP社に対するもの。売掛金とセットで消します（STEP3）。"], ["借入金", "×", "銀行からの借入は、グループの外への借金。そのまま残します。"], ["資本金", "○", "S社の資本金1,000は、P社の投資（S社株式）と重なっています（STEP2）。"], ["利益剰余金", "○", "S社を買う前の利益剰余金500はP社の投資と重なり、内部取引のもうけも入っています（STEP2〜4）。"], ["売上高", "○", "P社の売上のうち1,000はS社向け（グループ内）。STEP3で消します。"], ["売上原価", "○", "S社の売上原価にはP社からの仕入1,000が入っています。売上とセットで消します（STEP3）。"], ["販売費及び一般管理費", "×", "給料や広告費など、グループの外に払った費用。そのまま残します。"], ["受取配当金", "○", "P社がS社から受け取った配当80は、グループ内のお金の移動。STEP3で消します。"]], "cos": [{"code": "JP", "name": "サクラ・グローバル（親会社）", "country": "日本", "ccy": "JPY", "role": "親会社：開発・製造・国内販売", "own": null, "HR": 1, "AR": 1, "CR": 1}, {"code": "US", "name": "サクラ・アメリカ", "country": "アメリカ", "ccy": "USD", "role": "販売（北米）", "own": 1.0, "HR": 150, "AR": 148, "CR": 155}, {"code": "UK", "name": "サクラ・UK", "country": "イギリス", "ccy": "GBP", "role": "販売（英国）", "own": 1.0, "HR": 190, "AR": 195, "CR": 200}, {"code": "DE", "name": "サクラ・ヨーロッパ", "country": "ドイツ", "ccy": "EUR", "role": "販売（欧州）", "own": 1.0, "HR": 160, "AR": 165, "CR": 170}, {"code": "CN", "name": "サクラ・チャイナ", "country": "中国", "ccy": "CNY", "role": "販売（中国）", "own": 1.0, "HR": 20, "AR": 20.5, "CR": 21}, {"code": "SG", "name": "サクラ・アジアパシフィック", "country": "シンガポール", "ccy": "SGD", "role": "地域統括・販売（ASEAN）", "own": 1.0, "HR": 110, "AR": 112, "CR": 115}, {"code": "IN", "name": "サクラ・インディア", "country": "インド", "ccy": "INR", "role": "販売（インド）※現地企業と合弁", "own": 0.8, "HR": 1.75, "AR": 1.7, "CR": 1.65}, {"code": "TH", "name": "サクラ・タイランド", "country": "タイ", "ccy": "THB", "role": "販売（タイ）※現地企業と合弁", "own": 0.6, "HR": 4.3, "AR": 4.4, "CR": 4.5}, {"code": "AU", "name": "サクラ・オーストラリア", "country": "オーストラリア", "ccy": "AUD", "role": "販売（オセアニア）", "own": 1.0, "HR": 95, "AR": 97, "CR": 100}, {"code": "BR", "name": "サクラ・ブラジル", "country": "ブラジル", "ccy": "BRL", "role": "販売（南米）", "own": 1.0, "HR": 26, "AR": 25, "CR": 24}], "fs": {"JP": {"現金預金": 30353, "売掛金": 40000, "棚卸資産": 25000, "関係会社貸付金": 4800, "子会社株式": 78160, "有形固定資産": 80000, "買掛金": 25000, "借入金": 50000, "関係会社借入金": 0, "資本金": 100000, "利益剰余金": 83313, "売上高": 200000, "売上原価": 150000, "販売費及び一般管理費": 35000, "受取配当金": 3488, "受取利息": 125, "支払利息": 300, "期首利益剰余金": 70000, "配当金の支払": 5000}, "US": {"現金預金": 60, "売掛金": 80, "棚卸資産": 70, "有形固定資産": 50, "買掛金": 70, "借入金": 70, "資本金": 100, "利益剰余金": 20, "売上高": 400, "売上原価": 300, "販売費及び一般管理費": 60, "配当金の支払": 20}, "UK": {"現金預金": 25, "売掛金": 35, "棚卸資産": 30, "有形固定資産": 20, "買掛金": 30, "借入金": 15, "資本金": 50, "利益剰余金": 15, "売上高": 150, "売上原価": 110, "販売費及び一般管理費": 25}, "DE": {"現金預金": 40, "売掛金": 60, "棚卸資産": 50, "有形固定資産": 55, "買掛金": 50, "借入金": 50, "資本金": 80, "利益剰余金": 25, "売上高": 250, "売上原価": 180, "販売費及び一般管理費": 45}, "CN": {"現金預金": 300, "売掛金": 250, "棚卸資産": 200, "有形固定資産": 250, "買掛金": 200, "借入金": 200, "資本金": 500, "利益剰余金": 100, "売上高": 1200, "売上原価": 900, "販売費及び一般管理費": 200}, "SG": {"現金預金": 40, "売掛金": 40, "棚卸資産": 30, "有形固定資産": 20, "買掛金": 30, "借入金": 20, "資本金": 60, "利益剰余金": 20, "売上高": 200, "売上原価": 150, "販売費及び一般管理費": 30}, "IN": {"現金預金": 2000, "売掛金": 2500, "棚卸資産": 2000, "有形固定資産": 2500, "買掛金": 2200, "借入金": 2000, "資本金": 4000, "利益剰余金": 800, "売上高": 10000, "売上原価": 7500, "販売費及び一般管理費": 1700}, "TH": {"現金預金": 800, "売掛金": 1000, "棚卸資産": 900, "有形固定資産": 1300, "買掛金": 900, "借入金": 800, "資本金": 2000, "利益剰余金": 300, "売上高": 5000, "売上原価": 3800, "販売費及び一般管理費": 700, "配当金の支払": 200}, "AU": {"現金預金": 30, "売掛金": 35, "棚卸資産": 30, "有形固定資産": 25, "買掛金": 25, "借入金": 20, "資本金": 60, "利益剰余金": 15, "売上高": 180, "売上原価": 135, "販売費及び一般管理費": 30}, "BR": {"現金預金": 150, "売掛金": 230, "棚卸資産": 200, "有形固定資産": 265, "買掛金": 190, "借入金": 100, "関係会社借入金": 200, "資本金": 300, "利益剰余金": 55, "売上高": 900, "売上原価": 680, "販売費及び一般管理費": 160, "支払利息": 5}}, "ic": {"US": {"sales": 23680, "ar": 4650, "inv": 3700, "purch": 160, "ap": 30}, "UK": {"sales": 11700, "ar": 2000, "inv": 1950, "purch": 60, "ap": 10}, "DE": {"sales": 16500, "ar": 2550, "inv": 3300, "purch": 100, "ap": 15}, "CN": {"sales": 8200, "ar": 2100, "inv": 1640, "purch": 400, "ap": 100}, "SG": {"sales": 8400, "ar": 1150, "inv": 1120, "purch": 75, "ap": 10}, "IN": {"sales": 3400, "ar": 660, "inv": 850, "purch": 2000, "ap": 400}, "TH": {"sales": 4400, "ar": 900, "inv": 1100, "purch": 1000, "ap": 200}, "AU": {"sales": 6790, "ar": 800, "inv": 970, "purch": 70, "ap": 8}, "BR": {"sales": 5000, "ar": 1200, "inv": 1000, "purch": 200, "ap": 50}}, "divInc": {"US": 2960, "TH": 528}, "loan": {"code": "BR", "amount": 4800, "interest": 125}, "icMargin": 0.2, "quiz": [{"q": "連結財務諸表を作る、いちばんの目的は？", "opts": ["親会社だけの利益を大きく見せるため", "親会社と子会社を1つの会社とみなし、グループ全体の実態を示すため", "子会社の税金を計算するため", "子会社の決算を省略するため"], "ans": 1, "exp": "連結は「グループ全体を1つの会社」とみなす決算。投資家はグループ全体の稼ぐ力を知りたいのです。", "lesson": "what"}, {"q": "一般に「子会社」と判断されるのはどれ？", "opts": ["議決権の20%を持っている会社", "取引の金額が大きい会社", "議決権の過半数を持つなど、実質的に支配している会社", "同じ業界の会社"], "ans": 2, "exp": "支配力基準で判定します。20%以上（目安）で重要な影響があれば関連会社（持分法）です。", "lesson": "what"}, {"q": "単純合算のあとに「消去」が必要な理由は？", "opts": ["数字を小さく見せるため", "グループ内の取引や投資が二重に数えられているから", "為替レートが違うから", "監査法人のルールだから"], "ans": 1, "exp": "親の投資と子の資本、グループ内の売買などが二重に入っているので消します。", "lesson": "s1"}, {"q": "P社がS社株式の70%を900で取得。取得時のS社の純資産（時価で評価し直した後）は1,000。のれんはいくら？", "opts": ["100", "200", "300", "900"], "ans": 1, "exp": "P社の持分＝1,000×70%＝700。のれん＝900−700＝200。純資産は、資産・負債を時価で評価し直した後の金額を使います。", "lesson": "s2"}, {"q": "P社がS社株式の70%を900で取得し、取得時のS社の純資産（時価で評価し直した後）が1,000のとき、取得時の非支配株主持分はいくら？", "opts": ["200", "270", "300", "700"], "ans": 2, "exp": "非支配株主持分＝純資産1,000×（1−70%）＝300。払った金額900の30%（270）ではなく、子会社の純資産をもとに計算します。", "lesson": "s2"}, {"q": "親会社が子会社に商品1,000を販売した。連結で必要な仕訳は？", "opts": ["（借）売上原価 1,000 ／（貸）売上高 1,000", "（借）売上高 1,000 ／（貸）売上原価 1,000", "（借）売掛金 1,000 ／（貸）買掛金 1,000", "仕訳は不要"], "ans": 1, "exp": "グループ内の売上（親）と仕入＝売上原価（子）をセットで消します。", "lesson": "s3"}, {"q": "子会社の期末在庫のうち、親会社から仕入れた商品が500、親会社の売上総利益率（売値に対するもうけの割合）は30%。消去する未実現利益は？", "opts": ["100", "150", "350", "500"], "ans": 1, "exp": "500×30%＝150。※「原価に30%を上乗せして売った」場合は500×30÷130≒115。“利益率”がどちらかを必ず確認しよう。", "lesson": "s4"}, {"q": "未実現利益を消去する仕訳として正しいものは？", "opts": ["（借）棚卸資産 ／（貸）売上原価", "（借）売上原価 ／（貸）棚卸資産", "（借）売上高 ／（貸）棚卸資産", "（借）売掛金 ／（貸）棚卸資産"], "ans": 1, "exp": "期末在庫（棚卸資産）を減らすと、売上原価が増えて利益が減ります。", "lesson": "s4"}, {"q": "在外子会社の資産・負債を円に換算するときのレートは？（日本基準）", "opts": ["取得時（設立時）のレート", "期中平均レート", "決算日のレート", "前期末のレート"], "ans": 2, "exp": "BSは“今”＝決算日レート（CR）。", "lesson": "s6"}, {"q": "在外子会社の売上・費用（PL）は、原則としてどのレートで換算する？（日本基準）", "opts": ["決算日のレート", "期中平均レート", "取得時のレート", "毎月の月初のレート"], "ans": 1, "exp": "PLは“平均”＝期中平均レート（AR）が原則。日本基準では決算日レートも認められています。", "lesson": "s6"}, {"q": "換算すると、BSの左右が一致しなくなる。その差額を何という？", "opts": ["のれん", "為替差損益", "為替換算調整勘定", "非支配株主持分"], "ans": 2, "exp": "為替換算調整勘定は、利益ではなく純資産（その他の包括利益累計額）に入ります。", "lesson": "s6"}, {"q": "円安になると、在外子会社の売上高（円換算）は一般にどうなる？", "opts": ["増える", "減る", "変わらない", "ゼロになる"], "ans": 0, "exp": "1ドル＝140円→150円になれば、同じ1ドルの売上が円では大きくなります。", "lesson": "s6"}, {"q": "持分80%の子会社の当期純利益が500。非支配株主に帰属する当期純利益は？", "opts": ["100", "400", "500", "0"], "ans": 0, "exp": "500×（1−80%）＝100。", "lesson": "s2"}, {"q": "のれんの扱いとして正しいものは？", "opts": ["日本基準もIFRSも償却しない", "日本基準は20年以内で償却、IFRSは償却せず毎年減損テスト", "日本基準は償却しない、IFRSは5年で償却", "のれんは負債に表示する"], "ans": 1, "exp": "日本基準とIFRSの大きなちがいのひとつです。なお、日本基準でも、買った会社の業績が悪化するなど減損の兆候があれば減損します（CFO実務メモ参照）。", "lesson": "notes"}, {"q": "月次決算のIC照合で、親会社の売掛金と子会社の買掛金に差異が見つかった。最初にやるべきことは？", "opts": ["差異は小さいので無視して進める", "金額が大きいほうに合わせて修正する", "両社の担当者に連絡し、原因（計上のタイミング・為替レート・誤りなど）を確かめる", "監査法人にすべて任せる"], "ans": 2, "exp": "原因を確かめずに合わせると、間違いが残ります。差異は早く・大きい順に調べます。", "lesson": "s7"}, {"q": "議決権の45%を持ち、自社の役員が取締役会の過半数を占めている会社は？", "opts": ["子会社（全部連結）", "関連会社（持分法）", "その他の投資", "50%以下なので必ず連結しない"], "ans": 0, "exp": "40%以上50%以下でも、取締役会の過半数を占めるなど一定の要件を満たせば子会社です（支配力基準）。", "lesson": "what"}, {"q": "2年目の連結の開始仕訳で、前の年の「のれん償却額20」はどの科目で入れ直す？", "opts": ["のれん償却額", "利益剰余金期首残高", "非支配株主持分", "売上原価"], "ans": 1, "exp": "前の年のPLはすでに締め切られて利益剰余金に入っています。だから開始仕訳では「利益剰余金期首残高」で入れ直します。", "lesson": "s8"}, {"q": "前期末の在庫に含まれていた未実現利益50の商品が、当期中にすべて外部へ売れた。当期の連結の利益への影響は？", "opts": ["50減る", "変わらない", "50増える", "100増える"], "ans": 2, "exp": "前期に消したもうけが、売れた当期に“実現”します（（借）利益剰余金期首残高 50／（貸）売上原価 50）。", "lesson": "s8"}, {"q": "開始仕訳を入れたあとの「利益剰余金期首残高」は、何と一致しなければならない？", "opts": ["前期末の連結BSの利益剰余金", "P社の個別の利益剰余金", "S社の個別の利益剰余金", "前期の当期純利益"], "ans": 0, "exp": "連結は毎年作り直しますが、前期末の連結の数字と当期のスタートは必ずつながります。実務でも毎期この照合をします。", "lesson": "s8"}, {"q": "関連会社（持分30%）の当期純利益が200。持分法で取り込む額（のれん相当額の償却の前）は？", "opts": ["30", "60", "140", "200"], "ans": 1, "exp": "200×30%＝60。売上や資産は足さず、投資の金額を60増やします（一行連結）。", "lesson": "s9"}, {"q": "関連会社から配当15を受け取った。連結で必要な修正は？", "opts": ["仕訳なし", "（借）関連会社株式 15 ／（貸）受取配当金 15", "（借）現金 15 ／（貸）持分法による投資損益 15", "（借）受取配当金 15 ／（貸）関連会社株式 15"], "ans": 3, "exp": "配当は投資の一部が戻ってきたもの。利益はすでに持分法で取り込んでいるので、受取配当金を消して投資を減らします。", "lesson": "s9"}, {"q": "持分法による投資損益は、連結損益計算書のどこに表示する？", "opts": ["売上高", "販売費及び一般管理費", "営業外収益・営業外費用", "特別利益"], "ans": 2, "exp": "営業外に表示するので、営業利益は変わりません。", "lesson": "s9"}, {"q": "親会社→子会社の販売で未実現利益50を消去した。税率30%のとき、連結の当期純利益はいくら減る？", "opts": ["50", "15", "35", "0"], "ans": 2, "exp": "繰延税金資産15を計上し、税金費用も15減るので、利益への影響は−50＋15＝−35です。", "lesson": "s10"}, {"q": "のれん償却額20にかかる税効果（繰延税金資産・負債）は？", "opts": ["6", "14", "20", "認識しない（0）"], "ans": 3, "exp": "のれんは差額なので、税効果を認識しません。連結の税負担率がずれる典型的な理由です。", "lesson": "s10"}, {"q": "子会社が非支配株主（グループの外の株主）に払った配当20は、連結キャッシュ・フロー計算書のどこに出る？", "opts": ["営業活動", "投資活動", "財務活動（非支配株主への配当金の支払額）", "表示しない"], "ans": 2, "exp": "グループの外へ出ていったお金なので残します。親会社に払った分はグループ内なので消します。", "lesson": "s11"}, {"q": "包括利益の説明として正しいものは？", "opts": ["純資産の増減の全体", "当期純利益＋その他の包括利益。増資・配当など株主との取引は含まない", "営業利益＋為替換算調整勘定", "親会社の個別の当期純利益"], "ans": 1, "exp": "包括利益は、株主との取引以外で純資産が増えた・減った分。10か国の例では35,349＋2,730＝38,079です。", "lesson": "s11"}], "gloss": [["連結財務諸表", "れんけつざいむしょひょう", "Consolidated financial statements", "親会社と子会社をまとめて、1つの会社として作る決算書", "投資家が見るのは主に連結の数字"], ["親会社", "おやがいしゃ", "Parent company", "ほかの会社を支配している会社", "この教材ではP社・サクラ・グローバル（日本）"], ["子会社", "こがいしゃ", "Subsidiary", "親会社に支配されている会社", "議決権の過半数などで判定"], ["支配力基準", "しはいりょくきじゅん", "Control concept", "持っている株の割合だけでなく、実質的に支配しているかで子会社を判断する考え方", "議決権が40%以上50%以下でも、自社の役員などが取締役会の過半数を占めるなどの要件を満たせば子会社。40%未満でも、自社と同じ意思で投票する“緊密な者”などと合わせて過半数を持ち、同じような要件を満たせば子会社（くわしくは「1 連結とは」）"], ["関連会社", "かんれんがいしゃ", "Associate", "議決権の20%以上（15%以上でも役員の派遣などがあれば）を持ち、重要な影響を与えている会社", "連結せず持分法で取り込む（STEP9）"], ["持分法", "もちぶんほう", "Equity method", "関連会社の利益のうち、自分の取り分だけを投資の金額に取り込む方法", "“一行連結”とも呼ばれる（STEP9）"], ["共同支配企業", "きょうどうしはいきぎょう", "Joint venture", "複数の会社が契約で“共同で”支配している会社（重要なことは全員一致など）", "日本基準・IFRSとも持分法"], ["個別財務諸表", "こべつざいむしょひょう", "Separate / stand-alone FS", "各社が自分だけで作った決算書", "連結の材料になる"], ["単純合算", "たんじゅんがっさん", "Aggregation", "各社の決算書を、同じ科目どうし足すこと", "STEP1"], ["連結修正仕訳", "れんけつしゅうせいしわけ", "Consolidation adjustments / Eliminations", "単純合算のあとに、二重計上などを直すための仕訳", "連結のためだけの仕訳。各社の帳簿は直さない"], ["開始仕訳", "かいししわけ", "Opening consolidation entries", "前の年までの連結修正仕訳を、当期の連結のはじめにまとめて入れ直す仕訳", "前の年のPLの修正は「利益剰余金期首残高」に置きかえる（STEP8）"], ["投資と資本の相殺消去", "とうしとしほんのそうさいしょうきょ", "Investment-equity elimination", "親会社の「子会社株式」と子会社の「資本」を消すこと", "STEP2"], ["全面時価評価法", "ぜんめんじかひょうかほう", "Full fair-value remeasurement", "子会社を買った日（支配獲得日）に、子会社の資産・負債をすべて時価で評価し直すこと", "日本基準の連結のルール"], ["評価差額", "ひょうかさがく", "Fair-value adjustment", "子会社の資産・負債の時価と帳簿の金額の差。子会社の資本に含める", "のれん・非支配株主持分は評価差額を含めた純資産から計算（この教材の例では0）"], ["持分比率", "もちぶんひりつ", "Ownership percentage", "親会社が持っている子会社の株の割合", "例：80%"], ["のれん", "のれん", "Goodwill", "買収で払った金額が、手に入れた純資産（時価で評価し直した後の純資産のうち、自社の持分）より多い分。ブランドや将来の稼ぐ力への支払い", "日本基準は20年以内で償却（業績が悪化すれば減損も）。IFRSは償却せず毎年減損テスト"], ["のれん償却", "のれんしょうきゃく", "Goodwill amortization", "のれんを毎年少しずつ費用にすること", "例：200を10年で→毎年20。連結PLでは販売費及び一般管理費に表示"], ["負ののれん", "ふののれん", "Negative goodwill / Bargain purchase gain", "純資産より安く買えた差額", "まず資産・負債の評価を見直し、それでも残る分は買った年の特別利益（負ののれん発生益）"], ["非支配株主持分", "ひしはいかぶぬしもちぶん", "Non-controlling interests (NCI)", "子会社の純資産のうち、親会社以外の株主の取り分", "連結BSの純資産に表示"], ["非支配株主に帰属する当期純利益", "ひしはいかぶぬしにきぞくする…", "Profit attributable to NCI", "子会社の利益のうち、親会社以外の株主の取り分", "連結PLの最後で差し引く"], ["親会社株主に帰属する当期純利益", "おやがいしゃかぶぬしにきぞくする…", "Profit attributable to owners of the parent", "グループの利益のうち、親会社の株主の取り分", "いわゆる「最終利益」。EPSやROEの計算に使う"], ["内部取引", "ないぶとりひき", "Intercompany (IC) transactions", "グループ会社どうしの取引", "STEP3"], ["債権債務の相殺消去", "さいけんさいむのそうさいしょうきょ", "Elimination of IC receivables / payables", "グループ内の売掛金と買掛金、貸付金と借入金を消すこと", "あわせて、グループ内の売掛金に積んだ貸倒引当金も取り消す"], ["未実現利益", "みじつげんりえき", "Unrealized profit", "グループ内で売ったが、まだ外部に売れていない商品に含まれるもうけ", "STEP4"], ["ダウンストリーム", "－", "Downstream sale", "親会社→子会社への販売", "未実現利益は全額親会社が負担"], ["アップストリーム", "－", "Upstream sale", "子会社→親会社への販売", "未実現利益を非支配株主にも負担させる"], ["在外子会社", "ざいがいこがいしゃ", "Foreign subsidiary", "海外にある子会社", "外国のお金で決算書を作る"], ["決算日レート（CR）", "けっさんびレート", "Closing rate", "決算日（期末）の為替レート", "資産・負債の換算に使う"], ["期中平均レート（AR）", "きちゅうへいきんレート", "Average rate", "1年間の平均の為替レート", "売上・費用（PL）の換算に使う"], ["取得時レート（HR）", "しゅとくじレート", "Historical rate", "子会社を買った（作った）ときの為替レート", "資本金などの換算に使う"], ["為替換算調整勘定", "かわせかんさんちょうせいかんじょう", "Foreign currency translation adjustment (FCTR / CTA)", "換算のときにBSの左右が合わなくなる差額", "利益ではなく純資産（その他の包括利益累計額）に入る"], ["連結精算表", "れんけつせいさんひょう", "Consolidation worksheet", "各社の数字・合算・修正・連結を1枚に並べた表", "STEP5・STEP7-6"], ["タイムテーブル", "－", "Equity roll-forward schedule", "子会社の純資産・非支配株主持分・のれんの動きを時系列に並べた表", "開始仕訳を作るときの定番の道具（STEP8）"], ["連結パッケージ", "れんけつパッケージ", "Reporting package", "子会社が親会社に提出する決算データ一式", "決算書・内部取引の明細など"], ["IC照合", "アイシーしょうごう", "Intercompany reconciliation", "グループ会社間の取引・残高が一致しているか確かめる作業", "実務でいちばん時間がかかる作業のひとつ"], ["グループ勘定科目表", "－", "Group chart of accounts", "グループ共通の勘定科目のリスト", "各国の科目をこれにそろえてから足す"], ["会計方針の統一", "かいけいほうしんのとういつ", "Uniform accounting policies", "グループ内で同じ取引には同じ会計ルールを使うこと", "海外子会社がIFRSなどで作った決算書は、のれんの償却など一部を日本基準に合わせて直す"], ["のれん相当額", "のれんそうとうがく", "Goodwill embedded in an equity-method investment", "持分法で、投資の金額が関連会社の純資産の持分より多い分", "日本基準では償却する（STEP9）"], ["持分法による投資損益", "もちぶんほうによるとうしそんえき", "Share of profit of associates", "関連会社の利益のうち自社の持分（のれん相当額の償却を含む）", "連結PLの営業外収益・営業外費用に表示"], ["税効果会計", "ぜいこうかかいけい", "Deferred tax accounting", "会計の利益と税金の計算のずれ（一時差異）を調整して、利益と税金を対応させる方法", "連結修正にもつく（STEP10）"], ["繰延税金資産", "くりのべぜいきんしさん", "Deferred tax asset (DTA)", "前払いした税金（あとで税金が減る分）", "未実現利益の消去などで生まれる"], ["繰延税金負債", "くりのべぜいきんふさい", "Deferred tax liability (DTL)", "後払いになる税金（あとで税金が増える分）", "評価差額や貸倒引当金の取り消しなどで生まれる"], ["法人税等調整額", "ほうじんぜいとうちょうせいがく", "Deferred tax expense (income)", "税効果会計で調整した税金費用", "連結PLで「法人税、住民税及び事業税」の下に表示"], ["連結キャッシュ・フロー計算書", "れんけつキャッシュ・フローけいさんしょ", "Consolidated statement of cash flows", "グループのお金の出入りを営業・投資・財務に分けた表", "各社のCFを足してグループ内を消す（原則法）か、連結BS・PLから作る（簡便法）"], ["非支配株主への配当金の支払額", "－", "Dividends paid to NCI", "子会社がグループの外の株主に払った配当", "連結CFの財務活動に表示"], ["その他の包括利益", "そのたのほうかつりえき", "Other comprehensive income (OCI)", "包括利益のうち、当期純利益に入らない部分。純資産を増減させるが、増資・配当など株主との取引による増減は含まない", "為替換算調整勘定の増減など"], ["包括利益", "ほうかつりえき", "Comprehensive income", "当期純利益＋その他の包括利益（為替換算調整勘定の当期の増減など）", "純資産の増減のうち、株主との取引（増資・配当など）を除いた部分。非支配株主の分も含み、連結包括利益計算書で表示"], ["連結株主資本等変動計算書", "れんけつかぶぬししほんとうへんどうけいさんしょ", "Consolidated statement of changes in equity", "純資産の1年間の動き（期首→配当・利益・その他→期末）を表す表", "STEP11"], ["セグメント情報", "セグメントじょうほう", "Segment information", "事業別・地域別などの内訳", "どこで稼いでいるかが分かる"]], "adv": {"y2": {"s_ni": 400, "s_div": 150, "p_ni": 1300, "p_ni_ex": 1180, "p_div": 400, "ic_sales": 1200, "s_inv_from_p": 300, "margin": 0.2}, "eq": {"own": 0.3, "price": 600, "cap": 1000, "re0": 500, "years": 10, "ni": 200, "div": 50}, "tax": {"rate": 0.3, "up_down": 50, "up_up": 50, "ic_ar": 200, "allow_rate": 0.05, "gw_amort": 20}, "cf": {"p": {"op": 1200, "inv": -500, "fin": -300, "cash0": 2600}, "s": {"op": 250, "inv": -100, "fin": -100, "cash0": 550}, "ic_cash": 800, "div_to_p": 80, "div_to_nci": 20, "p_div": 300}}};
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const f0 = (n) => { const v = Math.round(n); if (v === 0) return "0"; return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("ja-JP"); };
+const fz = (n) => (Math.abs(n) < 0.5 ? "-" : f0(n));
+const sg = (n) => (Math.abs(n) < 0.5 ? "-" : (n > 0 ? "+" : "") + f0(n));
+const pc = (x, d = 1) => (x * 100).toFixed(d) + "%";
+const cls = (n) => (n < -0.5 ? "neg" : "");
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("consol-learn:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("consol-learn:" + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+};
+let done = store.get("done", {});
+let current = store.get("current", "welcome");
+const main = $("#main");
+const nav = $("#nav");
+
+let mqSeq = 0;
+function mq(q, options, answer, explain) {
+  mqSeq += 1;
+  return `<div class="quiz" data-ans="${answer}"><div class="q">${q}</div><div class="opts">${options
+    .map((o, i) => `<button class="opt" type="button" data-i="${i}">${"ABCD"[i]}．${o}</button>`)
+    .join("")}</div><div class="fb">${explain}</div></div>`;
+}
+function goal(t) { return `<div class="goal"><b>このレッスンのゴール：</b>${t}</div>`; }
+function analogy(t, lab = "たとえるなら") { return `<div class="analogy"><span class="lab">${lab}</span>${t}</div>`; }
+function cfo(t) { return `<div class="cfo"><span class="lab">グループCFOのひとこと</span>${t}</div>`; }
+function head(kicker, title, lead) {
+  return `<div class="kicker">${kicker}</div><h1>${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ""}`;
+}
+function jtable(lines) {
+  const dr = lines.filter((l) => l[0] === "dr");
+  const cr = lines.filter((l) => l[0] === "cr");
+  const n = Math.max(dr.length, cr.length);
+  let h = `<table class="journal"><tr><th>借方（左）</th><th style="text-align:right">金額</th><th>貸方（右）</th><th style="text-align:right">金額</th></tr>`;
+  for (let i = 0; i < n; i++) {
+    const a = dr[i], b = cr[i];
+    h += `<tr><td class="${a ? "acct" : ""}">${a ? a[1] : ""}</td><td class="n">${a ? f0(a[2]) : ""}</td><td class="${b ? "acct" : ""}">${b ? b[1] : ""}</td><td class="n">${b ? f0(b[2]) : ""}</td></tr>`;
+  }
+  return h + "</table>";
+}
+
+/* ---------- 2-company model ---------- */
+const B = D.base;
+const TYPE2 = {
+  売上高: "cr", 売上原価: "dr", 販売費及び一般管理費: "dr", のれん償却額: "dr", 受取配当金: "cr", 非支配株主に帰属する当期純利益: "dr",
+  現金預金: "dr", 売掛金: "dr", 棚卸資産: "dr", S社株式: "dr", 有形固定資産: "dr", のれん: "dr",
+  買掛金: "cr", 借入金: "cr", 資本金: "cr", 利益剰余金: "cr", 非支配株主持分: "cr",
+};
+const L2 = [
+  ["sec", "損益計算書（PL）"], ["売上高"], ["売上原価"], ["売上総利益", 1], ["販売費及び一般管理費"], ["のれん償却額"], ["営業利益", 1],
+  ["受取配当金"], ["当期純利益", 1], ["非支配株主に帰属する当期純利益"], ["親会社株主に帰属する当期純利益", 1],
+  ["sec", "貸借対照表（BS）"], ["現金預金"], ["売掛金"], ["棚卸資産"], ["S社株式"], ["有形固定資産"], ["のれん"], ["資産合計", 1],
+  ["買掛金"], ["借入金"], ["負債合計", 1], ["資本金"], ["利益剰余金"], ["非支配株主持分"], ["純資産合計", 1], ["負債・純資産合計", 1],
+];
+function calc2(v) {
+  const g = (k) => v[k] || 0;
+  const o = Object.assign({}, v);
+  o["売上総利益"] = g("売上高") - g("売上原価");
+  o["営業利益"] = o["売上総利益"] - g("販売費及び一般管理費") - g("のれん償却額");
+  o["当期純利益"] = o["営業利益"] + g("受取配当金");
+  o["親会社株主に帰属する当期純利益"] = o["当期純利益"] - g("非支配株主に帰属する当期純利益");
+  o["資産合計"] = ["現金預金", "売掛金", "棚卸資産", "S社株式", "有形固定資産", "のれん"].reduce((s, k) => s + g(k), 0);
+  o["負債合計"] = g("買掛金") + g("借入金");
+  o["純資産合計"] = g("資本金") + g("利益剰余金") + g("非支配株主持分");
+  o["負債・純資産合計"] = o["負債合計"] + o["純資産合計"];
+  return o;
+}
+function effect(entries, TYPE, calc) {
+  const d = {};
+  entries.forEach((lines) => lines.forEach(([side, acct, amt]) => {
+    const s = TYPE[acct] === side ? 1 : -1;
+    d[acct] = (d[acct] || 0) + s * amt;
+  }));
+  const c = calc(d);
+  d["利益剰余金"] = (d["利益剰余金"] || 0) + c["親会社株主に帰属する当期純利益"];
+  return d;
+}
+function journal2() {
+  const p = B.prm, sNI = B.S["当期純利益"];
+  const na = p.cap + p.re0, gw = p.price - na * p.own;
+  return [
+    { cat: "①投資と資本", title: "投資と資本の相殺消去（開始仕訳）", note: "P社のS社株式と、S社の資本金・取得時の利益剰余金を消す。差額がのれん、他の株主の取り分が非支配株主持分。",
+      lines: [["dr", "資本金", p.cap], ["dr", "利益剰余金", p.re0], ["dr", "のれん", gw], ["cr", "S社株式", p.price], ["cr", "非支配株主持分", na * (1 - p.own)]] },
+    { cat: "②のれん・非支配", title: "のれんの償却", note: `のれん${f0(gw)}を${p.years}年で少しずつ費用にする。`,
+      lines: [["dr", "のれん償却額", gw / p.years], ["cr", "のれん", gw / p.years]] },
+    { cat: "②のれん・非支配", title: "非支配株主への利益の配分", note: `S社の当期純利益${f0(sNI)}のうち${pc(1 - p.own, 0)}は他の株主のもの。`,
+      lines: [["dr", "非支配株主に帰属する当期純利益", sNI * (1 - p.own)], ["cr", "非支配株主持分", sNI * (1 - p.own)]] },
+    { cat: "③内部取引", title: "売上と仕入の消去", note: "グループ内の売上（P社）と仕入（S社の売上原価）をセットで消す。利益は変わらない。",
+      lines: [["dr", "売上高", p.icSales], ["cr", "売上原価", p.icSales]] },
+    { cat: "③内部取引", title: "売掛金と買掛金の消去", note: "グループ内の“ツケ”を消す。",
+      lines: [["dr", "買掛金", p.icAR], ["cr", "売掛金", p.icAR]] },
+    { cat: "③内部取引", title: "配当金の消去", note: "P社の受取配当金を消し、S社の配当の支払（利益剰余金の減少）を取り消す。他の株主の分は非支配株主持分を減らす。",
+      lines: [["dr", "受取配当金", p.div * p.own], ["dr", "非支配株主持分", p.div * (1 - p.own)], ["cr", "利益剰余金", p.div]] },
+    { cat: "④未実現利益", title: "未実現利益の消去", note: `S社の在庫${f0(p.icInv)}に入っているP社のもうけ（${pc(p.margin, 0)}）を消す。`,
+      lines: [["dr", "売上原価", p.icInv * p.margin], ["cr", "棚卸資産", p.icInv * p.margin]] },
+  ];
+}
+
+/* ---------- 10-country model ---------- */
+const ASSETS = ["現金預金", "売掛金", "棚卸資産", "関係会社貸付金", "子会社株式", "有形固定資産"];
+const LIABS = ["買掛金", "借入金", "関係会社借入金"];
+function translate(c, shift = 0) {
+  const fs = D.fs[c.code];
+  const k = 1 - shift;
+  const jp = c.code === "JP";
+  const HR = c.HR, AR = jp ? 1 : c.AR * k, CR = jp ? 1 : c.CR * k;
+  const g = (n) => fs[n] || 0;
+  const t = {};
+  ASSETS.concat(LIABS).forEach((n) => { t[n] = g(n) * CR; });
+  t["資本金"] = g("資本金") * HR;
+  ["売上高", "売上原価", "販売費及び一般管理費", "受取配当金", "受取利息", "支払利息"].forEach((n) => { t[n] = g(n) * AR; });
+  t["当期純利益"] = t["売上高"] - t["売上原価"] - t["販売費及び一般管理費"] + t["受取配当金"] + t["受取利息"] - t["支払利息"];
+  t["配当円"] = g("配当金の支払") * AR;
+  t["利益剰余金"] = g("期首利益剰余金") * HR + t["当期純利益"] - t["配当円"];
+  const A = ASSETS.reduce((s, n) => s + t[n], 0);
+  const L = LIABS.reduce((s, n) => s + t[n], 0);
+  t["為替換算調整勘定"] = A - L - t["資本金"] - t["利益剰余金"];
+  t._A = A; t._L = L; t._HR = HR; t._AR = AR; t._CR = CR;
+  return t;
+}
+const TYPE10 = {
+  売上高: "cr", 売上原価: "dr", 販売費及び一般管理費: "dr", 受取配当金: "cr", 受取利息: "cr", 支払利息: "dr", 非支配株主に帰属する当期純利益: "dr",
+  現金預金: "dr", 売掛金: "dr", 棚卸資産: "dr", 関係会社貸付金: "dr", 子会社株式: "dr", 有形固定資産: "dr",
+  買掛金: "cr", 借入金: "cr", 関係会社借入金: "cr", 資本金: "cr", 利益剰余金: "cr", 為替換算調整勘定: "cr", 非支配株主持分: "cr",
+};
+const L10 = [
+  ["sec", "損益計算書（PL）"], ["売上高"], ["売上原価"], ["売上総利益", 1], ["販売費及び一般管理費"], ["営業利益", 1], ["受取配当金"], ["受取利息"],
+  ["支払利息"], ["当期純利益", 1], ["非支配株主に帰属する当期純利益"], ["親会社株主に帰属する当期純利益", 1],
+  ["sec", "貸借対照表（BS）"], ["現金預金"], ["売掛金"], ["棚卸資産"], ["関係会社貸付金"], ["子会社株式"], ["有形固定資産"], ["資産合計", 1],
+  ["買掛金"], ["借入金"], ["関係会社借入金"], ["負債合計", 1], ["資本金"], ["利益剰余金"], ["為替換算調整勘定"], ["非支配株主持分"],
+  ["純資産合計", 1], ["負債・純資産合計", 1],
+];
+function calc10(v) {
+  const g = (k) => v[k] || 0;
+  const o = Object.assign({}, v);
+  o["売上総利益"] = g("売上高") - g("売上原価");
+  o["営業利益"] = o["売上総利益"] - g("販売費及び一般管理費");
+  o["当期純利益"] = o["営業利益"] + g("受取配当金") + g("受取利息") - g("支払利息");
+  o["親会社株主に帰属する当期純利益"] = o["当期純利益"] - g("非支配株主に帰属する当期純利益");
+  o["資産合計"] = ASSETS.reduce((s, k) => s + g(k), 0);
+  o["負債合計"] = LIABS.reduce((s, k) => s + g(k), 0);
+  o["純資産合計"] = g("資本金") + g("利益剰余金") + g("為替換算調整勘定") + g("非支配株主持分");
+  o["負債・純資産合計"] = o["負債合計"] + o["純資産合計"];
+  return o;
+}
+const T = {};
+D.cos.forEach((c) => { T[c.code] = translate(c); });
+const SUBS = D.cos.filter((c) => c.code !== "JP");
+function entries10() {
+  const E = { inv: [], nci: [], div: [], ic: [], up: [] };
+  SUBS.forEach((c) => {
+    const t = T[c.code], own = c.own, ic = D.ic[c.code];
+    const inv = D.fs[c.code]["資本金"] * c.HR * own;
+    const e1 = [["dr", "資本金", t["資本金"]], ["cr", "子会社株式", inv]];
+    if (own < 1) e1.push(["cr", "非支配株主持分", t["資本金"] * (1 - own)]);
+    E.inv.push(e1);
+    if (own < 1) {
+      const ni = t["当期純利益"] * (1 - own);
+      E.nci.push([["dr", "非支配株主に帰属する当期純利益", ni], ["cr", "非支配株主持分", ni]]);
+      const fx = t["為替換算調整勘定"] * (1 - own);
+      E.nci.push(fx >= 0 ? [["dr", "為替換算調整勘定", fx], ["cr", "非支配株主持分", fx]] : [["dr", "非支配株主持分", -fx], ["cr", "為替換算調整勘定", -fx]]);
+    }
+    const dv = t["配当円"];
+    if (dv) {
+      const e = [["dr", "受取配当金", dv * own]];
+      if (own < 1) e.push(["dr", "非支配株主持分", dv * (1 - own)]);
+      e.push(["cr", "利益剰余金", dv]);
+      E.div.push(e);
+    }
+    E.ic.push([["dr", "売上高", ic.sales], ["cr", "売上原価", ic.sales]]);
+    E.ic.push([["dr", "買掛金", ic.ar], ["cr", "売掛金", ic.ar]]);
+    E.up.push([["dr", "売上原価", ic.inv * D.icMargin], ["cr", "棚卸資産", ic.inv * D.icMargin]]);
+  });
+  E.ic.push([["dr", "関係会社借入金", D.loan.amount], ["cr", "関係会社貸付金", D.loan.amount]]);
+  E.ic.push([["dr", "受取利息", D.loan.interest], ["cr", "支払利息", D.loan.interest]]);
+  return E;
+}
+const E10 = entries10();
+const AGG10 = (() => {
+  const a = {};
+  L10.forEach(([k, t]) => { if (k !== "sec" && !t) a[k] = D.cos.reduce((s, c) => s + (T[c.code][k] || 0), 0); });
+  return calc10(a);
+})();
+const CATS = [
+  { k: "inv", name: "①投資と資本", desc: "子会社株式と子会社の資本金を消す" },
+  { k: "nci", name: "②非支配株主", desc: "合弁相手（インド・タイ）の取り分" },
+  { k: "div", name: "③配当金", desc: "グループ内の配当を消す" },
+  { k: "ic", name: "④内部取引", desc: "売上と仕入・売掛と買掛・貸付と利息" },
+  { k: "up", name: "⑤未実現利益", desc: "在庫に残った親会社のもうけ" },
+];
+function cons10(on) {
+  const list = [];
+  CATS.forEach((c) => { if (on[c.k]) list.push(...E10[c.k]); });
+  const adj = calc10(effect(list, TYPE10, calc10));
+  const res = {};
+  L10.forEach(([k]) => { if (k !== "sec") res[k] = (AGG10[k] || 0) + (adj[k] || 0); });
+  return { adj, res };
+}
+const ALLON = { inv: 1, nci: 1, div: 1, ic: 1, up: 1 };
+const CONS = cons10(ALLON).res;
+const extSales = (code) => (code === "JP" ? T.JP["売上高"] - SUBS.reduce((s, c) => s + D.ic[c.code].sales, 0) : T[code]["売上高"]);
+
+/* ---------- lessons ---------- */
+function Welcome() {
+  const cards = LESSONS.filter((l) => l.id !== "welcome").map((l) => `<div class="tile click" data-go="${l.id}">
+      <span class="pill ${done[l.id] ? "ok" : "acc"}">${l.tag}${done[l.id] ? " ✓" : ""}</span>
+      <div class="t" style="margin-top:6px">${l.title}</div><div class="s">${l.desc}</div></div>`).join("");
+  return { html: `${head("WELCOME", "連結決算を、“見て・さわって”理解しよう",
+    "親会社と子会社をまとめて「1つの会社」として決算する──それが連結決算です。このアプリでは、2社の小さな例から始めて、最後は10か国・10社のグローバル連結まで、スライダーやボタンを動かしながら学びます。")}
+    ${cfo("連結決算でやっていることは、じつは2つだけ。<b>① 全部足す</b>、そして <b>② グループ内のやりとり（二重に数えた分）を消す</b>。むずかしい言葉がたくさん出てきますが、すべてこの2つの応用です。数字はできるだけキリのよい数にしました。1つずつ、いっしょに進めましょう。")}
+    <h2>学習ロードマップ（目安：基本 約3〜4時間＋上級 約1〜2時間）</h2><div class="grid3">${cards}</div>
+    <div class="card"><h2>使い方</h2><ul>
+      <li>左のメニューから順番に進みます。各レッスンの最後に<b>確認問題</b>があります。STEP1〜7が基本、<b>STEP8〜11が上級（実務の連結）</b>です。</li>
+      <li>スライダーやスイッチを動かすと、数字やグラフがその場で変わります。いろいろ試してみてください。</li>
+      <li>「完了して次へ」を押すと、上の進み具合バーが伸びます（このブラウザに自動保存）。（OneDriveのプレビューで開いたときは保存されません。記録を残したいときは、このHTMLファイルをダウンロードしてブラウザで開いてください）</li>
+      <li>単位はすべて「百万円」（外貨は百万ドルなど）。税金はSTEP10以外では省略しています（連結の修正にかかる税金はSTEP10で学びます）。会社・数字・為替レートはすべて学習用の架空のものです。</li>
+      <li>アドレスの末尾（#s3 など）でレッスンを直接開けます（ダウンロードしたファイルをブラウザで開いたときに使えます。OneDriveのリンクでは使えません）。ブックマークや「戻る」ボタンも使えます。各レッスンの見出しの下に、Excel版の対応シート名を表示しています。確認クイズの最後には「間違えた問題の振り返り」と「間違えた問題だけ解き直す」があります。</li>
+      <li>同じフォルダの <b>Excel版「連結決算ラーニングワークブック.xlsx」</b>では、同じ例題を自分の手で計算できます。<br>おすすめ：アプリで“しくみ”をつかむ → Excelで“手を動かす”。</li>
+    </ul></div>` };
+}
+
+function What() {
+  return { html: `${head("入門", "連結決算ってなに？", "")}
+    ${goal("連結決算の目的と、「二重計上を消す」という考え方をつかむ")}
+    <div class="card"><h2>ひとことで言うと</h2><p style="font-size:1.1875rem"><b>親会社と子会社を「1つの会社」とみなして作る決算</b>です。</p>
+    <p>会社が大きくなると、国ごと・事業ごとに会社を分けます（子会社）。でも投資家や銀行が知りたいのは「グループ全体で、どれだけ稼いで、どれだけ財産があるのか」。そこでグループの決算書を1つにまとめます。英語では <b>Consolidation</b> といいます。</p></div>
+    ${analogy("お父さんの財布に10万円、子どもの財布に1万円。家族のお金は11万円です。お父さんが子どもにお小遣い5,000円を渡しても、家族全体のお金は11万円のまま。もし「子どもの収入5,000円」を家族の収入に数えたら、水増しになってしまいます。<br>→ <b>グループ内のやりとりは「消す」</b>。これが連結のいちばん大事な考え方です。", "家族の家計にたとえると")}
+    <div class="card"><h2>やってみよう：二重計上を消してみる</h2>
+      <p class="small muted">親会社P社が子会社S社に商品を100で売り、S社がそれを外のお客さまに150で売りました。グループの売上はいくら？</p>
+      <div class="seg" id="ddSeg"><button type="button" data-m="sum" class="on">単純合算（全部足す）</button><button type="button" data-m="cons">連結（グループ内を消す）</button></div>
+      <div class="tbl-wrap" style="margin-top:10px"><table class="fs"><tr><th>取引</th><th class="n">売上高</th><th>区分</th></tr>
+        <tr id="ddInt"><td>P社 → S社に販売</td><td class="n">100</td><td><span class="pill">グループ内</span></td></tr>
+        <tr><td>S社 → 外のお客さまに販売</td><td class="n">150</td><td><span class="pill ok">グループの外</span></td></tr>
+        <tr class="tot"><td>グループの売上高</td><td class="n" id="ddTot">250</td><td id="ddMsg" class="small"></td></tr></table></div></div>
+    <div class="card"><h2>連結決算の5ステップ</h2><div class="flow">
+      <div class="st"><b>① 各社の決算</b>各社が個別の決算書を作り、連結用に直す（会計方針をそろえる・買った子会社の資産・負債を時価に・決算日のずれを調整）</div><div class="arr">→</div>
+      <div class="st"><b>② 外貨換算</b>ドル・ユーロなどを円に直す</div><div class="arr">→</div>
+      <div class="st"><b>③ 単純合算</b>同じ科目どうし全部足す</div><div class="arr">→</div>
+      <div class="st"><b>④ 連結修正</b>二重になった分を消す（2年目以降は開始仕訳も）</div><div class="arr">→</div>
+      <div class="st"><b>⑤ 完成</b>連結財務諸表</div></div>
+      <h3>連結修正の「3本柱」</h3><div class="grid3">
+      <div class="tile"><div class="t">① 投資と資本の相殺消去</div><div class="s">親の「子会社株式」と子の「資本」は同じお金の表と裏 → STEP2</div></div>
+      <div class="tile"><div class="t">② 内部取引の消去</div><div class="s">グループ内の売上・貸し借り・配当 → STEP3</div></div>
+      <div class="tile"><div class="t">③ 未実現利益の消去</div><div class="s">グループ内で売って、まだ外に売れていない商品のもうけ → STEP4</div></div></div></div>
+    <div class="card"><h2>どの会社を連結するの？（スライダーを動かそう）</h2>
+      <div class="ctrl"><label for="own1">持っている議決権の割合</label><input type="range" id="own1" min="0" max="100" value="60"><output id="own1o">60%</output></div>
+      <div id="own1r" class="analogy"></div>
+      <p class="note">※実際の判定は「支配しているか」で決まります（支配力基準）。議決権が40%以上50%以下でも、自社の役員が取締役会の過半数を占めている・重要な方針を決める契約がある・資金調達の過半を融資しているなど一定の要件を満たせば子会社です（40%未満でも、自社と同じ意思で投票する人と合わせて過半数になる場合などは子会社になることがあります）。合弁相手と“共同で”支配する会社（共同支配企業）は持分法で取り込みます。</p></div>
+    ${mq("議決権の45%を持ち、自社の役員が取締役会の過半数を占めている会社は？", ["連結しない", "関連会社として持分法で取り込む", "子会社として連結する（全科目を足す）", "50%以下なので必ず連結しない"], 2, "40%以上50%以下でも、取締役会の過半数を占めるなど一定の要件を満たせば子会社（支配力基準）。全科目を100%足して、持っていない55%分は「非支配株主持分」として表示します。")}
+    ${cfo("決算説明会で投資家が見ているのは、ほぼ“連結”の数字です。グループ内で商品を売り買いしても、外のお客さまに売れなければ1円も稼いでいません。連結決算の役目は「水増しのない、グループの本当の稼ぐ力」を示すことです。")}`,
+    mount(root) {
+      const upd = (m) => {
+        $$("#ddSeg button", root).forEach((b) => b.classList.toggle("on", b.dataset.m === m));
+        $("#ddInt", root).classList.toggle("struck", m === "cons");
+        $("#ddTot", root).textContent = m === "cons" ? "150" : "250";
+        $("#ddMsg", root).innerHTML = m === "cons" ? '<span class="check-ok">✔ グループの外への売上150だけが残りました</span>' : '<span class="check-ng">グループ内の100が二重に入った“水増し”状態</span>';
+      };
+      $$("#ddSeg button", root).forEach((b) => b.addEventListener("click", () => upd(b.dataset.m)));
+      upd("sum");
+      const o = $("#own1", root);
+      const ou = () => {
+        const v = +o.value;
+        $("#own1o", root).textContent = v + "%";
+        let t;
+        if (v > 50) t = `<span class="lab">子会社 → 連結する</span>全科目を100%足します。持っていない${100 - v}%分は「非支配株主持分」として表示。`;
+        else if (v >= 20) t = '<span class="lab">関連会社（目安）→ 持分法</span>連結はせず、利益のうち自分の取り分だけを1行で取り込みます（一行連結。STEP9）。※50%以下でも、実質的に支配していれば子会社になることも。';
+        else if (v >= 15) t = '<span class="lab">その他の投資（目安）→ 連結しない</span>ただし15%以上で、役員を送り込んでいるなど重要な影響があれば関連会社（持分法）になります。';
+        else t = '<span class="lab">その他の投資 → 連結しない</span>投資有価証券として持つだけです。';
+        $("#own1r", root).innerHTML = t;
+      };
+      o.addEventListener("input", ou);
+      ou();
+    } };
+}
+
+const REGIONS = [
+  ["日本（親会社）", ["JP"]], ["北米", ["US"]], ["ヨーロッパ", ["UK", "DE"]], ["アジア", ["CN", "SG", "IN", "TH"]], ["オセアニア", ["AU"]], ["南米", ["BR"]],
+];
+function Group() {
+  const card = (code) => {
+    const c = D.cos.find((x) => x.code === code);
+    const jv = c.own && c.own < 1;
+    return `<div class="tile click" data-co="${code}"><div class="cc"><div class="code">${code}</div><div>
+      <div class="t">${c.country}　<span class="pill">${c.ccy}</span> ${c.own ? `<span class="pill ${jv ? "warn" : "acc"}">持分 ${pc(c.own, 0)}${jv ? "・合弁" : ""}</span>` : '<span class="pill acc">親会社</span>'}</div>
+      <div class="s">${c.name}｜${c.role}</div>
+      ${c.code !== "JP" ? `<div class="s mono">HR ${c.HR} / AR ${c.AR} / CR ${c.CR}（円）</div>` : ""}</div></div></div>`;
+  };
+  const regions = REGIONS.map(([r, codes]) => `<div class="region">${r}</div><div class="grid3">${codes.map(card).join("")}</div>`).join("");
+  return { html: `${head("舞台", "サクラ・グローバル・グループ（10か国）", "このアプリの総合演習（STEP7）で連結する、架空のグローバル企業グループです。")}
+    ${goal("グループの全体像（10社・10通貨・持分比率・為替レート）をつかむ")}
+    <div class="card"><p>サクラ・グローバル（日本）は、自社で開発・製造した製品を、世界9か国の販売子会社に売っています。各国の子会社はその製品を現地のお客さまに販売します。<b>インドとタイは現地企業との合弁会社</b>で、親会社の持分はインド80%・タイ60%です。</p>
+    <p class="small muted">学習用の前提：子会社はすべて前期末に設立（今期が、子会社のPLも含めて連結する最初の年）／インド・タイの合弁は、親会社が議決権の過半数を持ち、パートナーに重要事項の拒否権がない（＝親会社が単独で支配）ので子会社として全部連結／グループ内取引は円建て（子会社側の為替差損益は省略）／親会社が子会社に売るときの売上総利益率は20%／子会社の配当は、簡便的にAR（期中平均レート）で換算（実務では配当を決めた日のレートなど）／税金は省略。</p></div>
+    ${regions}
+    <div class="card" id="coDetail"><p class="muted">↑ 会社のカードをクリックすると、その会社の決算書（現地通貨と円換算）がここに表示されます。</p></div>
+    ${mq("タイの子会社（サクラ・タイランド）で、親会社以外の株主（合弁相手）の取り分は？", ["0%", "20%", "40%", "60%"], 2, "親会社の持分は60%なので、合弁相手の取り分は40%。連結ではこの40%分を「非支配株主持分」として表示します。")}
+    ${cfo("グローバル企業の連結は、まず「誰が・どの通貨で・どれだけ持っているか」を正確に把握することから始まります。持分比率と為替レートは、連結のすべての計算の土台です。")}`,
+    mount(root) {
+      const show = (code) => {
+        $$("[data-co]", root).forEach((x) => x.classList.toggle("sel", x.dataset.co === code));
+        const c = D.cos.find((x) => x.code === code), fs = D.fs[code], t = T[code];
+        const g = (k) => fs[k] || 0;
+        const lcNI = g("売上高") - g("売上原価") - g("販売費及び一般管理費") + g("受取配当金") + g("受取利息") - g("支払利息");
+        const lcA = ASSETS.reduce((s, k) => s + g(k), 0);
+        const lcNA = g("資本金") + g("利益剰余金");
+        const rows = [["売上高", g("売上高"), t["売上高"], "AR"], ["当期純利益", lcNI, t["当期純利益"], "AR"], ["資産合計", lcA, t._A, "CR"],
+          ["資本金", g("資本金"), t["資本金"], "HR"], ["利益剰余金", g("利益剰余金"), t["利益剰余金"], "PLから"], ["為替換算調整勘定", null, t["為替換算調整勘定"], "差額"]];
+        $("#coDetail", root).innerHTML = `<h2>${c.name}（${c.country}）</h2><div class="tbl-wrap"><table class="fs"><tr><th>科目</th><th class="n">現地通貨（百万${c.ccy}）</th><th>換算レート</th><th class="n">円換算（百万円）</th></tr>
+          ${rows.map(([k, a, b, r]) => `<tr><td>${k}</td><td class="n">${a == null ? "－" : fz(a)}</td><td class="small muted">${code === "JP" ? "－" : r}</td><td class="n ${cls(b)}">${fz(b)}</td></tr>`).join("")}</table></div>
+          <p class="note">${code === "JP" ? "親会社は円なので換算は不要です。" : `為替換算調整勘定がプラス＝設立時より円安（現地通貨高）、マイナス＝現地通貨安。${c.country}は HR ${c.HR} → CR ${c.CR} 円。`}</p>`;
+      };
+      $$("[data-co]", root).forEach((x) => x.addEventListener("click", () => show(x.dataset.co)));
+    } };
+}
+
+function S1() {
+  const P = B.P, S = B.S;
+  const bs = ["現金預金", "売掛金", "棚卸資産", "S社株式", "有形固定資産", "資産合計", "買掛金", "借入金", "資本金", "利益剰余金", "負債・純資産合計"];
+  const pl = ["売上高", "売上原価", "売上総利益", "販売費及び一般管理費", "営業利益", "受取配当金", "当期純利益"];
+  const tots = new Set(["資産合計", "負債・純資産合計", "売上総利益", "営業利益", "当期純利益"]);
+  const row = (k) => `<tr class="${tots.has(k) ? "tot" : ""}"><td>${k}</td><td class="n">${fz(P[k] || 0)}</td><td class="n">${fz(S[k] || 0)}</td><td class="n res">${fz((P[k] || 0) + (S[k] || 0))}</td></tr>`;
+  const chips = D.s1.map(([k]) => `<button type="button" class="chip" data-k="${k}">${k}</button>`).join("");
+  return { html: `${head("STEP1", "単純合算 ── まずは全部、足してみよう", "")}
+    ${goal("単純合算のやり方を知り、「どの科目に二重計上が含まれているか」を見つけられるようになる")}
+    <div class="card"><p>連結の第一歩は、親会社と子会社の決算書を、<b>同じ科目どうし足す</b>こと。これを「単純合算」といいます。下はP社（親会社）とS社（子会社）の決算書です（単位：百万円）。</p>
+    <div class="tbl-wrap"><table class="fs"><tr><th>科目</th><th class="n">P社（親）</th><th class="n">S社（子）</th><th class="n">単純合算</th></tr>
+      <tr class="sec"><td colspan="4">貸借対照表（BS）</td></tr>${bs.map(row).join("")}
+      <tr class="sec"><td colspan="4">損益計算書（PL）</td></tr>${pl.map(row).join("")}</table></div>
+    <p class="note">前提：P社は前期末にS社株式の80%を1,400で取得。P社→S社の売上1,000、期末のグループ内の売掛金200、S社の在庫のうちP社から仕入れた分250（P社の売上総利益率20%）、S社の配当100（P社は80を受取）。</p></div>
+    <div class="card"><h2>やってみよう：二重計上が含まれていると思う科目をクリック</h2>
+      <div class="chips" id="s1chips">${chips}</div>
+      <div class="btnrow"><button class="btn" type="button" id="s1check">答え合わせ</button><button class="btn ghost" type="button" id="s1reset">やり直す</button><span id="s1score" class="small"></span></div>
+      <div id="s1exp"></div></div>
+    ${mq("単純合算のあとに「消去」が必要な理由は？", ["数字を小さく見せるため", "グループ内の取引や投資が二重に数えられているから", "為替レートが違うから", "監査法人のルールだから"], 1, "親の投資と子の資本、グループ内の売買などが二重に入っているので、STEP2〜4で消していきます。")}
+    ${cfo("実務では、足す前に「科目をそろえる」作業があります。国ごとに勘定科目の名前や分け方が違うので、グループ共通の勘定科目表（Group Chart of Accounts）に合わせてから足します。")}`,
+    mount(root) {
+      const ans = Object.fromEntries(D.s1.map(([k, a, e]) => [k, { a, e }]));
+      $$(".chip", root).forEach((c) => c.addEventListener("click", () => { c.classList.toggle("sel"); }));
+      $("#s1check", root).addEventListener("click", () => {
+        let ok = 0;
+        $$(".chip", root).forEach((c) => {
+          const want = ans[c.dataset.k].a === "○";
+          const sel = c.classList.contains("sel");
+          c.classList.remove("right", "wrong");
+          c.classList.add(want === sel ? "right" : "wrong");
+          if (want === sel) ok += 1;
+        });
+        $("#s1score", root).innerHTML = `<b>${ok} / ${D.s1.length}</b> 正解${ok === D.s1.length ? "　🎉 全問正解！" : ""}`;
+        $("#s1exp", root).innerHTML = `<div class="tbl-wrap"><table class="fs"><tr><th>科目</th><th>二重計上？</th><th>解説</th></tr>${D.s1.map(([k, a, e]) => `<tr><td>${k}</td><td style="text-align:center"><b class="${a === "○" ? "check-ng" : "check-ok"}">${a === "○" ? "あり" : "なし"}</b></td><td class="small">${e}</td></tr>`).join("")}</table></div>`;
+      });
+      $("#s1reset", root).addEventListener("click", () => { $$(".chip", root).forEach((c) => c.classList.remove("sel", "right", "wrong")); $("#s1exp", root).innerHTML = ""; $("#s1score", root).innerHTML = ""; });
+    } };
+}
+
+function S2() {
+  const p = B.prm, na = p.cap + p.re0, sNI = B.S["当期純利益"];
+  return { html: `${head("STEP2", "投資と資本の相殺消去 ── のれんと非支配株主持分", "")}
+    ${goal("親会社の「子会社株式」と子会社の「資本」を消す理由が分かり、のれん・非支配株主持分を計算できるようになる")}
+    <div class="card"><p>P社はS社の株式を<b>${f0(p.price)}</b>で買いました。P社のBSには「S社株式」、S社のBSには「資本金・利益剰余金」。この2つは<b>同じものを親の側と子の側から見ているだけ</b>なので、連結では両方を消します。</p>
+    ${analogy("お店を丸ごと買うとき、お店の正味の財産（資産−借金）が1,000万円なのに1,200万円払ったら？ 差額の200万円は「立地・常連さん・ブランド」など目に見えない価値への支払い。これが<b>のれん（Goodwill）</b>です。")}
+    <p>もう1つのポイント：P社が持っているのは80%だけ。残り20%は他の株主（<b>非支配株主</b>）のもの。連結ではS社の資産・負債を100%足すので、他の株主の取り分を<b>非支配株主持分（NCI）</b>として純資産に表示します。</p></div>
+    <div class="grid2"><div class="tile"><div class="t">のれん ＝ 取得価額 − 子会社の純資産（時価評価後）× 持分比率</div><div class="s">払った金額のうち、買った純資産を超える分</div></div>
+      <div class="tile"><div class="t">非支配株主持分 ＝ 子会社の純資産（時価評価後）×（1 − 持分比率）</div><div class="s">他の株主の取り分</div></div></div>
+    <p class="note">※連結では、子会社を買った日に子会社の資産・負債をすべて“その日の値段（時価）”で評価し直します（全面時価評価法）。時価と帳簿の金額の差（評価差額）も子会社の純資産に含めます。この例では、わかりやすくするために「時価＝帳簿の金額（評価差額はゼロ）」としています。たとえばS社の土地の時価が帳簿より100高ければ、純資産は1,600 → のれん120・非支配株主持分320になります。</p>
+    <div class="card"><h2>スライダーで実験：持分比率と買った金額を変えると？</h2>
+      <p class="small muted">買ったときのS社の純資産（時価評価後）＝資本金 ${f0(p.cap)} ＋ 利益剰余金 ${f0(p.re0)} ＋ 評価差額 0 ＝ <b>${f0(na)}</b>（固定）</p>
+      <div class="ctrl"><label for="s2own">持分比率</label><input type="range" id="s2own" min="55" max="100" step="5" value="${p.own * 100}"><output id="s2owno"></output></div>
+      <div class="ctrl"><label for="s2px">取得価額（払った金額）</label><input type="range" id="s2px" min="600" max="2400" step="50" value="${p.price}"><output id="s2pxo"></output></div>
+      <div class="barlab"><span>P社が払った金額（取得価額）</span><span id="s2l1"></span></div><div class="hbar" id="s2b1"></div>
+      <div class="barlab"><span>S社の純資産（買ったとき）</span><span id="s2l2"></span></div><div class="hbar" id="s2b2"></div>
+      <div class="legend"><span><i class="c-gray"></i>P社の持分</span><span><i class="c-acc"></i>のれん</span><span><i class="c-warn"></i>非支配株主持分</span></div>
+      <div class="grid4" style="margin-top:14px" id="s2kpi"></div>
+      <h3>連結修正仕訳（自動で変わります）</h3><div id="s2j"></div><p class="note" id="s2msg"></p>
+      <div id="s2neg" class="hide"><p class="note">※貸方の「利益剰余金期首残高（前期の負ののれん発生益）」は、<b>取得した年（前期）に特別利益として計上済み</b>です。前期のPLはもう締め切られて利益剰余金に入っているので、当期の開始仕訳では、発生益ではなく「利益剰余金期首残高」で入れ直します。</p>
+        <h3>くらべてみよう：取得した年（前期）の連結での仕訳</h3><div id="s2j0"></div>
+        <p class="note">取得した年は、差額を「負ののれん発生益」（特別利益）としてPLに計上します。翌年以降は、上の開始仕訳のとおり「利益剰余金期首残高」で入れ直します。負ののれんは、のれんとちがって償却しません。</p></div>
+      <p class="note">※この仕訳は「開始仕訳」です。S社は前期末に買ったので、買った日の“投資と資本の相殺”は、当期の連結では最初に入れ直す仕訳になります（連結修正は各社の帳簿に残らないため。くわしくはSTEP8）。</p>
+      <div class="btnrow"><button class="btn ghost" type="button" id="s2reset">基礎データの値（80%・1,400）に戻す</button></div></div>
+    ${mq("P社がS社株式の70%を900で取得。取得時のS社の純資産（時価で評価し直した後）は1,000。のれんはいくら？", ["100", "200", "300", "900"], 1, "P社の持分＝1,000×70%＝700。のれん＝900−700＝200。非支配株主持分は1,000×30%＝300です。")}
+    ${cfo("M&Aの交渉では「のれんがいくら出るか」をいつも気にします。日本基準ではのれんを20年以内で毎年償却するので、その分だけ毎年の利益が減ります。IFRSでは償却しない代わりに、毎年“減損テスト”を行います。どちらの基準でも、買った会社の業績が計画を下回ると「減損」で一気に大きな損失が出ることがあります。高く買いすぎないことが、未来の連結決算を守ります。")}`,
+    mount(root) {
+      const ownEl = $("#s2own", root), pxEl = $("#s2px", root);
+      const upd = () => {
+        const own = +ownEl.value / 100, px = +pxEl.value;
+        const ps = na * own, nci = na * (1 - own), gw = px - ps;
+        $("#s2owno", root).textContent = pc(own, 0);
+        $("#s2pxo", root).textContent = f0(px);
+        const sc = Math.max(px, na);
+        const w = (v) => `${Math.max(0, v) / sc * 100}%`;
+        $("#s2b1", root).innerHTML = gw >= 0
+          ? `<div class="c-gray" style="width:${w(ps)}">持分 ${f0(ps)}</div><div class="c-acc" style="width:${w(gw)}">${gw > 0 ? "のれん " + f0(gw) : ""}</div>`
+          : `<div class="c-gray" style="width:${w(px)}">払った金額 ${f0(px)}</div>`;
+        $("#s2b2", root).innerHTML = `<div class="c-gray" style="width:${w(ps)}">持分 ${f0(ps)}</div><div class="c-warn" style="width:${w(nci)}">${nci > 0 ? "非支配 " + f0(nci) : ""}</div>`;
+        $("#s2l1", root).textContent = f0(px);
+        $("#s2l2", root).textContent = f0(na);
+        const kp = [["のれん", gw >= 0 ? f0(gw) : "0", gw < 0 ? `負ののれん ${f0(-gw)}` : "払いすぎた分"], ["のれん償却額（毎年）", f0(Math.max(gw, 0) / p.years), `${p.years}年で均等に償却`],
+          ["非支配株主持分", f0(nci), `純資産の${pc(1 - own, 0)}`], ["非支配株主に帰属する当期純利益", f0(sNI * (1 - own)), `S社の利益${f0(sNI)}×${pc(1 - own, 0)}`]];
+        $("#s2kpi", root).innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d muted">${d}</div></div>`).join("");
+        const lines = [["dr", "資本金", p.cap], ["dr", "利益剰余金", p.re0]];
+        if (gw > 0) lines.push(["dr", "のれん", gw]);
+        lines.push(["cr", "S社株式", px]);
+        if (nci > 0) lines.push(["cr", "非支配株主持分", nci]);
+        if (gw < 0) lines.push(["cr", "利益剰余金期首残高（前期の負ののれん発生益）", -gw]);
+        $("#s2j", root).innerHTML = jtable(lines);
+        $("#s2neg", root).classList.toggle("hide", gw >= 0);
+        $("#s2j0", root).innerHTML = gw < 0 ? jtable(lines.map((l) => l[1].startsWith("利益剰余金期首残高（前期") ? ["cr", "負ののれん発生益（特別利益）", l[2]] : l)) : "";
+        $("#s2msg", root).textContent = gw > 0 ? "左右の合計は必ず同じ金額になります（のれんは“差額”として出てきます）。"
+          : gw < 0 ? "純資産より安く買えた！ まず資産・負債の評価を見直し、それでも残る差額は「負ののれん」として、買った年（前期）の特別利益（負ののれん発生益）になります。" : "ぴったり！ のれんは出ません。";
+      };
+      ownEl.addEventListener("input", upd);
+      pxEl.addEventListener("input", upd);
+      $("#s2reset", root).addEventListener("click", () => { ownEl.value = p.own * 100; pxEl.value = p.price; upd(); });
+      upd();
+    } };
+}
+
+function S3() {
+  const P = B.P, S = B.S, p = B.prm;
+  const sum = (k) => (P[k] || 0) + (S[k] || 0);
+  return { html: `${head("STEP3", "内部取引の消去 ── グループ内の売買・貸し借り・配当", "")}
+    ${goal("グループ内の取引を消す理由が分かり、売上と仕入・売掛金と買掛金・配当金を消去できるようになる")}
+    <div class="card"><p>グループ会社どうしの売り買い・貸し借り・配当は、<b>「右のポケットから左のポケットにお金を移しただけ」</b>。グループの外から見ると何も起きていないので、両方の会社に記録されている金額を<b>セットで消します</b>。</p>
+    <div class="grid3"><div class="tile"><div class="t">① 売上と仕入</div><div class="s">P社の売上 ${f0(p.icSales)} ⇔ S社の仕入（売上原価）${f0(p.icSales)}</div></div>
+      <div class="tile"><div class="t">② 債権と債務</div><div class="s">P社の売掛金 ${f0(p.icAR)} ⇔ S社の買掛金 ${f0(p.icAR)}</div></div>
+      <div class="tile"><div class="t">③ 配当金</div><div class="s">S社の配当 ${f0(p.div)}（うちP社へ ${f0(p.div * p.own)}）</div></div></div></div>
+    <div class="card"><h2>スイッチで消してみよう</h2>
+      <div class="switches" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <label class="sw" id="w1"><input type="checkbox" id="c1"><span><b>① 売上と仕入を消す</b>（借）売上高／（貸）売上原価</span></label>
+        <label class="sw" id="w2"><input type="checkbox" id="c2"><span><b>② 債権と債務を消す</b>（借）買掛金／（貸）売掛金</span></label>
+        <label class="sw" id="w3"><input type="checkbox" id="c3"><span><b>③ 配当を消す</b>（借）受取配当金・非支配株主持分／（貸）利益剰余金</span></label></div>
+      <div class="tbl-wrap" style="margin-top:12px"><table class="fs" id="s3t"></table></div>
+      <p class="note" id="s3n"></p>
+      <p class="note">※P社がS社への売掛金に貸倒引当金を積んでいたら、グループの中では貸し倒れは起きないので、その引当金も取り消します。例：売掛金200の5%＝10なら（借）貸倒引当金 10 ／（貸）貸倒引当金繰入額 10（この例では引当金はないものとしています。税金の調整はSTEP10）。</p></div>
+    ${mq("親会社が子会社に商品1,000を販売した。連結で必要な仕訳は？", ["（借）売上原価 1,000 ／（貸）売上高 1,000", "（借）売上高 1,000 ／（貸）売上原価 1,000", "（借）売掛金 1,000 ／（貸）買掛金 1,000", "仕訳は不要"], 1, "グループ内の売上（親）と仕入＝売上原価（子）をセットで消します。利益は変わりません。")}
+    ${cfo("実務で一番時間がかかるのが、この内部取引の照合（IC照合）です。「P社の売掛金200」に対して「S社の買掛金190」のように、計上のタイミングや為替レートの違いで金額が合わないことがよくあります。差異を早くゼロにする仕組みづくりが、コントローラーの腕の見せどころです。")}`,
+    mount(root) {
+      const draw = () => {
+        const a = $("#c1", root).checked, b = $("#c2", root).checked, c = $("#c3", root).checked;
+        $("#w1", root).classList.toggle("on", a); $("#w2", root).classList.toggle("on", b); $("#w3", root).classList.toggle("on", c);
+        const rows = [
+          ["売上高", sum("売上高"), a ? -p.icSales : 0],
+          ["売上原価", sum("売上原価"), a ? -p.icSales : 0],
+          ["売上総利益", sum("売上高") - sum("売上原価"), 0, 1],
+          ["受取配当金", sum("受取配当金"), c ? -p.div * p.own : 0],
+          ["当期純利益（2社の合計）", sum("当期純利益"), c ? -p.div * p.own : 0, 1],
+          ["売掛金", sum("売掛金"), b ? -p.icAR : 0],
+          ["買掛金", sum("買掛金"), b ? -p.icAR : 0],
+          ["非支配株主持分（配当の影響）", 0, c ? -p.div * (1 - p.own) : 0],
+        ];
+        $("#s3t", root).innerHTML = `<tr><th>科目</th><th class="n">単純合算</th><th class="n">消去</th><th class="n">消去後</th></tr>` + rows.map(([k, v, d, t]) =>
+          `<tr class="${t ? "tot" : ""}"><td>${k}</td><td class="n">${fz(v)}</td><td class="n adj ${d ? "flash" : ""}">${sg(d)}</td><td class="n res">${fz(v + d)}</td></tr>`).join("");
+        $("#s3n", root).innerHTML = a ? "ポイント：売上高と売上原価を同じだけ消したので、<b>売上総利益は変わりません</b>。でも売上高の“水増し”がなくなりました。" : "スイッチを入れて、表の数字がどう変わるか見てみましょう。";
+      };
+      ["#c1", "#c2", "#c3"].forEach((s) => $(s, root).addEventListener("change", draw));
+      draw();
+    } };
+}
+
+function S4() {
+  const p = B.prm;
+  const agg = (k) => (B.P[k] || 0) + (B.S[k] || 0);
+  return { html: `${head("STEP4", "未実現利益の消去 ── 在庫に残った“グループ内のもうけ”", "")}
+    ${goal("未実現利益とは何かが分かり、計算と消去の仕訳ができるようになる")}
+    <div class="card"><p>P社はS社に商品を売ってもうけを出しました。でも、その商品が<b>まだS社の倉庫に残っていたら</b>？ グループ全体で見ると、商品はまだ外に売れていません。そのもうけはまだ実現していない＝<b>未実現利益</b>なので、連結では消します。</p>
+    ${analogy("お母さん（P社）が、材料費800円のケーキを娘（S社）に1,000円で売りました。お母さんは200円もうかった…？ でもケーキはまだ家の冷蔵庫の中。家族全体では1円ももうかっていません。家族以外の人に売れたとき、はじめて本当のもうけになります。")}
+    <div class="tile"><div class="t">未実現利益 ＝ 子会社の期末在庫のうち親会社から仕入れた分 × 親会社の売上総利益率（売値に対するもうけの割合）</div></div></div>
+    <div class="card"><h2>スライダーで実験</h2>
+      <div class="ctrl"><label for="s4inv">親会社から仕入れた期末在庫</label><input type="range" id="s4inv" min="0" max="500" step="10" value="${p.icInv}"><output id="s4invo"></output></div>
+      <div class="ctrl"><label for="s4m">親会社の売上総利益率</label><input type="range" id="s4m" min="0" max="40" step="1" value="${p.margin * 100}"><output id="s4mo"></output></div>
+      <div class="barlab"><span>S社の在庫（P社から仕入れた分）の中身</span><span id="s4tot"></span></div><div class="hbar" id="s4bar"></div>
+      <div class="legend"><span><i class="c-gray"></i>P社の原価（グループにとっての仕入値）</span><span><i class="c-acc"></i>P社のもうけ＝未実現利益</span></div>
+      <div class="grid3" style="margin-top:14px" id="s4kpi"></div>
+      <h3>連結修正仕訳</h3><div id="s4j"></div>
+      <p class="note">なぜ売上原価？ → 売上原価 ＝ 期首在庫 ＋ 仕入 − 期末在庫。期末在庫を減らすと売上原価が増え、利益が減ります。</p>
+      <label class="sw" id="s4uw" style="margin-top:10px"><input type="checkbox" id="s4up"><span><b>もし逆向き（子会社→親会社に販売＝アップストリーム）だったら？</b>子会社のもうけなので、非支配株主（20%）にも負担してもらいます。</span></label>
+      <p id="s4upn" class="small"></p></div>
+    ${mq("子会社の期末在庫のうち親会社から仕入れた商品が500、親会社の売上総利益率（売値に対するもうけの割合）は30%。消去する未実現利益は？", ["100", "150", "350", "500"], 1, "500×30%＝150。仕訳は（借）売上原価150／（貸）棚卸資産150。※「原価に30%上乗せ」なら500×30÷130≒115。“利益率”がどちらかを必ず確認しよう。")}
+    ${cfo("未実現利益は、グループ内の取引価格（移転価格）が高いほど、子会社の在庫が多いほど大きくなります。海外子会社に在庫が積み上がると、連結の利益が思ったより小さくなることも。グループ在庫を毎月チェックするのはCFOの大事な習慣です。")}`,
+    mount(root) {
+      const upd = () => {
+        const inv = +$("#s4inv", root).value, m = +$("#s4m", root).value / 100, up = inv * m;
+        $("#s4invo", root).textContent = f0(inv);
+        $("#s4mo", root).textContent = pc(m, 0);
+        $("#s4tot", root).textContent = "合計 " + f0(inv);
+        const w = (v) => (inv ? (v / inv) * 100 : 0) + "%";
+        $("#s4bar", root).innerHTML = inv ? `<div class="c-gray" style="width:${w(inv - up)}">原価 ${f0(inv - up)}</div><div class="c-acc" style="width:${w(up)}">${up >= 15 ? "もうけ " + f0(up) : ""}</div>` : "";
+        const k = [["消去する未実現利益", f0(up)], ["連結BSの棚卸資産", f0(agg("棚卸資産") - up) + `<span class="small muted">（合算 ${f0(agg("棚卸資産"))} − ${f0(up)}）</span>`],
+          ["連結PLの売上原価", f0(agg("売上原価") - p.icSales + up) + `<span class="small muted">（合算 − 内部仕入 ＋ ${f0(up)}）</span>`]];
+        $("#s4kpi", root).innerHTML = k.map(([l, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v" style="font-size:1.25rem">${v}</div></div>`).join("");
+        $("#s4j", root).innerHTML = jtable([["dr", "売上原価", up], ["cr", "棚卸資産", up]]);
+        const isUp = $("#s4up", root).checked;
+        $("#s4uw", root).classList.toggle("on", isUp);
+        $("#s4upn", root).innerHTML = isUp ? `アップストリームなら、未実現利益${f0(up)}のうち <b>${f0(up * 0.2)}</b>（20%）は非支配株主の負担。<br>追加の仕訳：（借）非支配株主持分 ${f0(up * 0.2)} ／（貸）非支配株主に帰属する当期純利益 ${f0(up * 0.2)}` : "今回は親会社→子会社への販売（ダウンストリーム）なので、全額を親会社が負担します。";
+      };
+      ["#s4inv", "#s4m"].forEach((s) => $(s, root).addEventListener("input", upd));
+      $("#s4up", root).addEventListener("change", upd);
+      upd();
+    } };
+}
+
+/* ---------- 上級（実務の連結）：STEP8〜11 ---------- */
+const AD = D.adv;
+
+function wfRows(steps) {
+  let run = 0;
+  const mx = Math.max(...steps.map((s) => Math.abs(s[2] ? s[1] : 0)), ...steps.reduce((acc, s) => { run = s[2] ? s[1] : run + s[1]; acc.push(Math.abs(run)); return acc; }, [])) * 1.08 || 1;
+  run = 0;
+  return steps.map(([l, v, base]) => {
+    let left, width, c;
+    if (base) { left = 0; width = v; c = "c-gray"; run = v; } else { const s0 = run; run += v; left = Math.min(s0, run); width = Math.abs(v); c = v >= 0 ? "c-ok" : "c-acc"; }
+    return `<div class="row"><div>${l}</div><div class="track"><div class="blk ${c}" style="left:${left / mx * 100}%;width:${width / mx * 100}%"></div></div><div class="n mono" style="text-align:right;font-weight:700">${base ? f0(v) : sg(v)}</div></div>`;
+  }).join("");
+}
+function kpiCards(list) {
+  return list.map(([l, v, d]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div>${d ? `<div class="d muted">${d}</div>` : ""}</div>`).join("");
+}
+
+function S8() {
+  const p = B.prm, y = AD.y2;
+  const na0 = p.cap + p.re0, gw0 = p.price - na0 * p.own, am = gw0 / p.years, up1 = p.icInv * p.margin, nciR = 1 - p.own;
+  const sNI1 = B.S["当期純利益"], div1 = p.div;
+  const reOpen = p.re0 + am + sNI1 * nciR + div1 * p.own - div1;
+  const nciOpen = na0 * nciR + sNI1 * nciR - div1 * nciR;
+  const pRE1 = B.P["利益剰余金"], sRE1 = B.S["利益剰余金"];
+  const consRE1 = pRE1 + sRE1 - reOpen - up1;
+  const parts = [["取得時の利益剰余金（投資と資本の相殺）", p.re0, "STEP2"], ["1年目ののれん償却額", am, "STEP2"], ["1年目の非支配株主に帰属する当期純利益", sNI1 * nciR, "STEP2"],
+    ["1年目の受取配当金の消去", div1 * p.own, "STEP3"], ["1年目のS社の配当の取り消し", -div1, "STEP3（利益剰余金を戻す）"]];
+  return { html: `${head("STEP8 上級", "2年目の連結 ── 開始仕訳とタイムテーブル", "")}
+    ${goal("2年目以降の連結で必要な「開始仕訳」を作れるようになり、前の年の修正が利益剰余金にどう引き継がれるかが分かる")}
+    <div class="card"><p>連結決算は、毎年「各社の個別決算書」からあらためて作ります。でも個別決算書には、前の年に行った連結修正（S社株式の消去・のれん・非支配株主持分・未実現利益など）は入っていません。そこで2年目の最初に、前の年までの修正をまとめてもう一度行います。これが<b>開始仕訳</b>です。</p>
+      ${analogy("毎年あたらしいノートで家計簿をつけるとき、去年の「調整メモ」を最初のページに書き写してから今年の分を書きはじめるイメージ。ポイントは、去年のPLを動かした修正は、2年目では<b>「利益剰余金期首残高」</b>にまとめて入ることです。")}</div>
+    <div class="card"><h2>① 前の年までの連結修正のうち、利益剰余金に関係するもの（→「利益剰余金期首残高」に集まる）</h2>
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>内訳</th><th class="n">利益剰余金を減らす額</th><th>どこで出てきた？</th></tr>
+        ${parts.map(([l, v, s]) => `<tr><td>${l}</td><td class="n">${sg(v)}</td><td class="small muted">${s}</td></tr>`).join("")}
+        <tr class="tot"><td>開始仕訳の利益剰余金期首残高（小計）</td><td class="n">${f0(reOpen)}</td><td></td></tr>
+        <tr><td>前期末の未実現利益（2年目に実現）</td><td class="n">${sg(up1)}</td><td class="small muted">STEP4</td></tr>
+        <tr class="tot"><td>合計（STEP5の修正額 −610 と同じ金額）</td><td class="n">${f0(reOpen + up1)}</td><td class="small check-ok">✔ STEP5と同じ</td></tr></table></div>
+      <h3>開始仕訳（1本にまとめた形）</h3>${jtable([["dr", "資本金", p.cap], ["dr", "利益剰余金期首残高", reOpen], ["dr", "のれん", gw0 - am], ["cr", "S社株式", p.price], ["cr", "非支配株主持分", nciOpen]])}
+      <h3>前期の未実現利益（開始仕訳＋実現をまとめた形）</h3>${jtable([["dr", "利益剰余金期首残高", up1], ["cr", "売上原価", up1]])}
+      <p class="note">確かめ：P社の利益剰余金 ${f0(pRE1)} ＋ S社 ${f0(sRE1)} − ${f0(reOpen)} − ${f0(up1)} ＝ <b>${f0(consRE1)}</b>（＝1年目末の連結BSの利益剰余金）<span class="check-ok"> ✔</span>。実務でも「前期の連結」と「当期の開始仕訳後」が一致するかを必ず確かめます。</p></div>
+    <div class="card"><h2>② 2年目の当期の修正と利益（スライダーで実験）</h2>
+      <div class="ctrl"><label for="s8ni">S社の2年目の当期純利益</label><input type="range" id="s8ni" min="0" max="800" step="10" value="${y.s_ni}"><output id="s8nio"></output></div>
+      <div class="ctrl"><label for="s8dv">S社の2年目の配当（総額）</label><input type="range" id="s8dv" min="0" max="300" step="10" value="${y.s_div}"><output id="s8dvo"></output></div>
+      <div class="ctrl"><label for="s8iv">S社の2年目末の在庫のうちP社から仕入れた分</label><input type="range" id="s8iv" min="0" max="600" step="10" value="${y.s_inv_from_p}"><output id="s8ivo"></output></div>
+      <p class="small muted">P社の2年目の当期純利益（個別）＝ ${f0(y.p_ni - y.s_div * p.own)} ＋ S社からの受取配当金（配当×80%）。P社の配当 ${f0(y.p_div)}。1年目末の在庫250は、2年目にすべてグループの外へ売れたとします。</p>
+      <div class="kpis" id="s8k"></div>
+      <h3>利益の橋わたし（2年目）</h3><div class="wf" id="s8wf"></div>
+      <h3>資本連結のタイムテーブル（簿記1級・実務の定番）</h3><div class="tbl-wrap"><table class="fs nowrap1" id="s8tt"></table></div>
+      <p class="note" id="s8chk"></p>
+      <div class="btnrow"><button class="btn ghost" type="button" id="s8reset">設定を元に戻す（400・150・300）</button></div></div>
+    <div class="card"><h2>発展：持分が変わったら？（支配が続いたままの追加取得・一部売却）</h2>
+      <p>1年目末のS社（純資産1,700、P社80%）で考えます。支配が続いたまま持分が変わるときは「親会社の株主」と「非支配株主」の間の取引とみなし、差額はのれんや売却益ではなく<b>資本剰余金</b>にします（日本基準。IFRSでも資本取引として扱い、差額は資本に直接入れます）。</p>
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>ケース</th><th class="n">非支配株主持分</th><th class="n">資本剰余金</th><th>ポイント</th></tr>
+        <tr><td>10%を200で追加取得（80%→90%）</td><td class="n">−170</td><td class="n">−30</td><td class="small">のれんは増えない</td></tr>
+        <tr><td>10%を220で一部売却（80%→70%）</td><td class="n">＋170</td><td class="n">＋50</td><td class="small">個別の売却益45は連結では取り消す。のれんは減らさない</td></tr></table></div>
+      <p class="note">※期末に連結の資本剰余金がマイナスになるときは、資本剰余金をゼロにし、マイナス分を利益剰余金から減らします（日本基準）。この教材のP社には資本剰余金がないので、追加取得の例（−30）では利益剰余金が30減ります。</p></div>
+    ${mq("2年目の開始仕訳で、前の年の「のれん償却額20」はどの科目で入れ直す？", ["のれん償却額", "利益剰余金期首残高", "非支配株主持分", "売上原価"], 1, "前の年のPLはすでに締め切られて利益剰余金に入っています。だから開始仕訳では「利益剰余金期首残高」で入れ直します。")}
+    ${mq("前期末の在庫に含まれていた未実現利益50の商品が、当期中にすべて外部へ売れた。当期の連結の利益への影響は？", ["50減る", "変わらない", "50増える", "100増える"], 2, "前期に消したもうけが、売れた当期に“実現”します。（借）利益剰余金期首残高 50 ／（貸）売上原価 50 で、当期の売上原価が減り利益が増えます。")}
+    ${cfo("開始仕訳のミスは、2年目以降ずっと数字をずらし続けます。実務では「前期の連結の純資産」と「当期の開始仕訳を入れたあとの純資産」が一致するかを必ず確かめます。タイムテーブルを1枚作っておくと、のれん・非支配株主持分・取得後の剰余金がひと目で分かり、監査の説明もラクになります。")}`,
+    mount(root) {
+      const el = (id) => $("#" + id, root);
+      const upd = () => {
+        const sni = +el("s8ni").value, sdv = +el("s8dv").value, iv = +el("s8iv").value;
+        el("s8nio").textContent = f0(sni); el("s8dvo").textContent = f0(sdv); el("s8ivo").textContent = f0(iv);
+        const divP = sdv * p.own, divN = sdv * nciR, up2 = iv * p.margin, pNI = (y.p_ni - y.s_div * p.own) + divP;
+        const steps = [["P社の当期純利益（個別）", pNI, "base"], ["− S社から受け取った配当（グループ内）", -divP], ["＋ S社の利益のうちP社の取り分（80%）", sni * p.own],
+          ["− のれん償却額", -am], ["− 2年目末の未実現利益", -up2], ["＋ 前期末の未実現利益の実現", up1]];
+        const parent = steps.reduce((s, x) => s + x[1], 0);
+        steps.push(["＝ 親会社株主に帰属する当期純利益（2年目）", parent, "base"]);
+        el("s8wf").innerHTML = wfRows(steps);
+        const nciEnd = nciOpen + sni * nciR - divN;
+        el("s8k").innerHTML = kpiCards([["親会社株主に帰属する当期純利益", f0(parent), "2年目"], ["非支配株主に帰属する当期純利益", f0(sni * nciR), "S社の利益×20%"],
+          ["2年目末の非支配株主持分", f0(nciEnd), `${f0(nciOpen)}＋${f0(sni * nciR)}−${f0(divN)}`], ["2年目末ののれん", f0(gw0 - am * 2), "毎年20ずつ償却"]]);
+        const re = [p.re0, sRE1, sRE1 + sni - sdv], tot = re.map((r) => p.cap + r);
+        const rows = [["資本金", [p.cap, p.cap, p.cap]], ["利益剰余金", re], ["S社の純資産（合計）", tot, 1], ["非支配株主持分（20%）", tot.map((t) => t * nciR)],
+          ["取得後の利益剰余金のうちP社の分（80%）", re.map((r) => (r - p.re0) * p.own)], ["のれん（残高）", [gw0, gw0 - am, gw0 - am * 2]]];
+        el("s8tt").innerHTML = `<tr><th>項目</th><th class="n">取得時（1年目の期首）</th><th class="n">1年目末</th><th class="n">2年目末</th></tr>` +
+          rows.map(([l, v, t]) => `<tr class="${t ? "tot" : ""}"><td>${l}</td>${v.map((x) => `<td class="n">${f0(x)}</td>`).join("")}</tr>`).join("");
+        const pRE2 = pRE1 + pNI - y.p_div;
+        const consRE2a = pRE2 + (re[2] - p.re0) * p.own - am * 2 - up2;
+        const consRE2b = consRE1 + parent - y.p_div;
+        el("s8chk").innerHTML = `2年目末の連結の利益剰余金：P社 ${f0(pRE2)} ＋ 取得後のS社の剰余金のP社分 ${f0((re[2] - p.re0) * p.own)} − のれん償却の累計 ${f0(am * 2)} − 未実現利益 ${f0(up2)} ＝ <b>${f0(consRE2a)}</b>　｜　期首 ${f0(consRE1)} ＋ 利益 ${f0(parent)} − P社の配当 ${f0(y.p_div)} ＝ <b>${f0(consRE2b)}</b> ` +
+          (Math.abs(consRE2a - consRE2b) < 0.5 ? '<span class="check-ok">✔ 2つの計算が一致</span>' : '<span class="check-ng">✖</span>');
+      };
+      ["s8ni", "s8dv", "s8iv"].forEach((i) => el(i).addEventListener("input", upd));
+      el("s8reset").addEventListener("click", () => { el("s8ni").value = y.s_ni; el("s8dv").value = y.s_div; el("s8iv").value = y.s_inv_from_p; upd(); });
+      upd();
+    } };
+}
+
+function S9() {
+  const e = AD.eq, na0 = e.cap + e.re0, share0 = na0 * e.own;
+  return { html: `${head("STEP9 上級", "持分法 ── 関連会社は「1行」で取り込む", "")}
+    ${goal("子会社（連結）と関連会社（持分法）の違いが分かり、持分法による投資損益と投資の金額を計算できるようになる")}
+    <div class="card"><p>支配まではしていないけれど、経営に重要な影響を与えている会社（＝<b>関連会社</b>）は、全部の科目は足しません。かわりに、持っている株式（投資）の金額を、その会社の利益や配当に合わせて増やしたり減らしたりします。これが<b>持分法</b>。決算書には「投資の1行」と「持分法による投資損益の1行」しか出てこないので、<b>“1行連結”</b>とも呼ばれます。</p>
+      ${analogy("自分の財布（子会社）なら中身を全部数えますが、友だちと共同で持っている貯金箱（関連会社）は「自分の取り分がいくら増えたか」だけを記録するイメージです。")}
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>区分</th><th>目安</th><th>連結での扱い</th></tr>
+        <tr><td><b>子会社</b></td><td class="small">議決権の過半数（40%以上50%以下でも取締役会の過半数などで実質支配なら子会社）</td><td class="small">連結（全部の科目を100%足す）</td></tr>
+        <tr><td><b>関連会社</b></td><td class="small">議決権の20%以上（15%以上でも役員の派遣などで重要な影響があれば）</td><td class="small">持分法（投資の金額を1行で増減）</td></tr>
+        <tr><td><b>共同支配企業</b></td><td class="small">合弁相手と契約で“共同で”支配</td><td class="small">持分法（日本基準・IFRSとも）</td></tr>
+        <tr><td><b>その他の投資</b></td><td class="small">影響が小さい（20%未満など）</td><td class="small">有価証券として評価。受け取った配当だけが収益</td></tr></table></div></div>
+    <div class="card"><h2>スライダーで実験：もしP社がA社（関連会社）の30%を前期末に取得していたら（基礎データとは別の練習）</h2>
+      <p class="small muted">取得時のA社の純資産 ${f0(na0)}（資本金 ${f0(e.cap)}＋利益剰余金 ${f0(e.re0)}）× 30% ＝ P社の持分 ${f0(share0)}。のれん相当額は${e.years}年で償却。</p>
+      <div class="ctrl"><label for="s9px">A社株式の取得価額</label><input type="range" id="s9px" min="450" max="900" step="10" value="${e.price}"><output id="s9pxo"></output></div>
+      <div class="ctrl"><label for="s9ni">A社の当期純利益</label><input type="range" id="s9ni" min="-200" max="500" step="10" value="${e.ni}"><output id="s9nio"></output></div>
+      <div class="ctrl"><label for="s9dv">A社の配当（総額）</label><input type="range" id="s9dv" min="0" max="150" step="10" value="${e.div}"><output id="s9dvo"></output></div>
+      <div class="kpis" id="s9k"></div>
+      <h3>A社株式の動き</h3><div class="wf" id="s9wf"></div>
+      <h3>持分法の修正仕訳（自動で変わります）</h3><div id="s9j"></div>
+      <p class="note" id="s9chk"></p>
+      <div class="btnrow"><button class="btn ghost" type="button" id="s9reset">設定を元に戻す（600・200・50）</button></div></div>
+    <div class="card"><h2>連結（全部連結）と持分法のちがい</h2><div class="tbl-wrap"><table class="fs nowrap1"><tr><th>項目</th><th>子会社（連結）</th><th>関連会社（持分法）</th></tr>
+      <tr><td>売上高・費用</td><td class="small">全部足す</td><td class="small">足さない（A社の売上はグループの売上にならない）</td></tr>
+      <tr><td>資産・負債</td><td class="small">全部足す</td><td class="small">足さない（BSには投資の1行だけ）</td></tr>
+      <tr><td>PLでの表示</td><td class="small">売上高から当期純利益まで全部</td><td class="small">営業外収益（費用）に「持分法による投資損益」。営業利益は変わらない</td></tr>
+      <tr><td>親会社株主の利益</td><td class="small">持分の分だけ増える</td><td class="small">同じく持分の分だけ増える（だから“1行連結”）</td></tr></table></div>
+      <p class="note">発展：P社がA社に商品を売り、A社の在庫に残っている場合は、未実現利益のうちP社の持分（30%）だけを消します。日本基準の持分法では、関連会社の資産・負債の時価評価も投資会社の持分の分だけ行います（部分時価評価法）。IFRSでは、のれん相当額は償却せず、投資全体で減損の判定をします（この例なら毎年の償却15がなくなります）。</p></div>
+    ${mq("関連会社から配当15を受け取った。連結で必要な修正は？", ["仕訳なし", "（借）A社株式 15 ／（貸）受取配当金 15", "（借）受取配当金 15 ／（貸）A社株式 15", "（借）現金 15 ／（貸）持分法による投資損益 15"], 2, "配当は「投資の一部が戻ってきた」もの。利益はすでに持分法で取り込んでいるので、受取配当金を消して投資を減らします（利益の二重計上を防ぐ）。")}
+    ${mq("持分法による投資損益は、連結損益計算書のどこに表示する？", ["売上高", "販売費及び一般管理費", "営業外収益・営業外費用", "特別利益"], 2, "営業外に表示するので、営業利益（本業のもうけ）は変わりません。")}
+    ${cfo("持分法の利益は営業利益の下（営業外）に入るので、本業のもうけは変わりませんが、最終利益は動きます。大きな関連会社の業績が悪化すると、持分法の損失だけでなく、投資そのものの減損が必要になることも。CFOは関連会社の決算も毎期チェックし、「持分法の利益が全体の何%か」を投資家に説明できるようにしておきます。")}`,
+    mount(root) {
+      const el = (id) => $("#" + id, root);
+      const upd = () => {
+        const px = +el("s9px").value, ni = +el("s9ni").value, dv = +el("s9dv").value;
+        el("s9pxo").textContent = f0(px); el("s9nio").textContent = f0(ni); el("s9dvo").textContent = f0(dv);
+        const gw = px - share0, am = gw / e.years, inc = ni * e.own, div = dv * e.own, eqInc = inc - am, inv = px + inc - am - div;
+        el("s9k").innerHTML = kpiCards([["のれん相当額", f0(gw), gw < 0 ? "マイナス＝安く買えた分（その年の利益）" : "取得価額 − 取得時の持分"],
+          ["持分法による投資損益", sg(eqInc), `利益の取り込み ${f0(inc)} − 償却 ${f0(am)}`], ["受け取った配当（投資を減らす）", f0(div), "配当 × 30%"], ["期末のA社株式", f0(inv), "連結BSの金額"]]);
+        el("s9wf").innerHTML = wfRows([["取得価額（前期末）", px, "base"], ["＋ 利益の取り込み（30%）", inc], ["− のれん相当額の償却", -am], ["− 受け取った配当", -div], ["＝ 期末のA社株式", inv, "base"]]);
+        const lines = [];
+        if (inc >= 0) lines.push([["dr", "A社株式", inc], ["cr", "持分法による投資損益", inc]]); else lines.push([["dr", "持分法による投資損益", -inc], ["cr", "A社株式", -inc]]);
+        if (am > 0) lines.push([["dr", "持分法による投資損益", am], ["cr", "A社株式", am]]); else if (am < 0) lines.push([["dr", "A社株式", -am], ["cr", "持分法による投資損益", -am]]);
+        if (div > 0) lines.push([["dr", "受取配当金", div], ["cr", "A社株式", div]]);
+        el("s9j").innerHTML = lines.map((l) => jtable(l)).join("");
+        const chk = (na0 + ni - dv) * e.own + gw - am;
+        el("s9chk").innerHTML = `確かめ：期末のA社の純資産 ${f0(na0 + ni - dv)} × 30% ＝ ${f0((na0 + ni - dv) * e.own)} ＋ のれん相当額の残り ${f0(gw - am)} ＝ <b>${f0(chk)}</b> ` +
+          (Math.abs(chk - inv) < 0.5 ? '<span class="check-ok">✔ 期末のA社株式と一致</span>' : '<span class="check-ng">✖</span>');
+      };
+      ["s9px", "s9ni", "s9dv"].forEach((i) => el(i).addEventListener("input", upd));
+      el("s9reset").addEventListener("click", () => { el("s9px").value = e.price; el("s9ni").value = e.ni; el("s9dv").value = e.div; upd(); });
+      upd();
+    } };
+}
+
+function S10() {
+  const t = AD.tax, p = B.prm, gwAm = (p.price - (p.cap + p.re0) * p.own) / p.years;
+  return { html: `${head("STEP10 上級", "税効果 ── 連結の修正にも“税金のずれ”がある", "")}
+    ${goal("連結修正に税効果会計が必要な理由が分かり、未実現利益・貸倒引当金の修正にかかる繰延税金資産（負債）を計算できるようになる")}
+    <div class="card"><p>この教材では、分かりやすくするためSTEP10以外は税金を省いています。実務の連結では、連結での資産・負債の金額と税金の計算上の金額にずれが生まれる修正（未実現利益の消去・グループ内の貸倒引当金の取り消し・子会社の資産・負債の時価評価など）に、「税金のずれ」の調整（<b>税効果</b>）がつきます。売上と仕入・債権と債務の消去や配当金の消去、のれん・のれん償却にはつきません。</p>
+      <p>STEP4でP社のもうけ50を消しましたが、P社は個別の決算で、このもうけにかかる税金（税率30%なら15）をすでに払っています。連結では「まだもうかっていない」のに税金だけ払っている状態＝<b>税金の前払い</b>。そこで15を<b>繰延税金資産</b>として計上し、同じ額だけ税金費用を減らします（<b>法人税等調整額</b>）。</p>
+      <div class="grid2"><div class="tile"><div class="t">利益を減らす修正（未実現利益の消去など）</div><div class="s">→ 繰延税金資産（税金の前払い）。税金費用が減る</div></div>
+        <div class="tile"><div class="t">利益を増やす修正（貸倒引当金の消去など）</div><div class="s">→ 繰延税金負債（税金の後払い）。税金費用が増える</div></div></div>
+      <p class="note">のれん・のれん償却には税効果を認識しません（のれんは“差額”なので、税金の調整をすると計算がぐるぐる回ってしまうため）。</p></div>
+    <div class="card"><h2>スライダーで実験：未実現利益と税率</h2>
+      <div class="ctrl"><label for="s10r">法定実効税率</label><input type="range" id="s10r" min="0" max="40" step="1" value="${t.rate * 100}"><output id="s10ro"></output></div>
+      <div class="ctrl"><label for="s10u">消去する未実現利益</label><input type="range" id="s10u" min="0" max="200" step="10" value="${t.up_down}"><output id="s10uo"></output></div>
+      <div class="seg" id="s10dir"><button type="button" data-d="down" class="on">ダウンストリーム（親→子）</button><button type="button" data-d="up">アップストリーム（子→親）</button></div>
+      <div class="kpis" id="s10k" style="margin-top:12px"></div>
+      <h3>仕訳（未実現利益の消去＋税効果）</h3><div id="s10j"></div><p class="note" id="s10n"></p>
+      <h3>4つのケースで比べる（いまの税率で計算）</h3><div class="tbl-wrap"><table class="fs nowrap1" id="s10t"></table></div>
+      <p class="note">※③は、P社の個別で貸倒引当金が税務上の損金になっていた場合（中小企業など）の形です。大企業では原則として損金にならないため、個別で計上していた繰延税金資産を取り消す形になります。どちらでも連結の利益への影響は同じです。この教材のP社（資本金5,000百万円）は大企業なので実際には後者ですが、ここでは考え方の練習のため前者の形で計算しています（STEP3では引当金なしとしましたが、ここでは「もし5%積んでいたら」と考えます）。</p></div>
+    <div class="card"><h2>税金があるときの連結損益計算書（下のほう）</h2><div class="tbl-wrap"><table class="fs">
+      <tr class="tot"><td>税金等調整前当期純利益</td><td class="small muted">連結修正をすべて入れたあと、税金を引く前の利益</td></tr>
+      <tr><td>　法人税、住民税及び事業税</td><td class="small muted">各社が実際に払う税金の合計</td></tr><tr><td>　法人税等調整額</td><td class="small muted">税効果会計の調整（マイナスなら税金費用が減る）</td></tr>
+      <tr class="tot"><td>当期純利益</td><td></td></tr><tr><td>　非支配株主に帰属する当期純利益</td><td class="small muted">子会社のほかの株主の取り分</td></tr><tr class="tot"><td>親会社株主に帰属する当期純利益</td><td class="small muted">いわゆる“最終利益”</td></tr></table></div>
+      <p class="note">発展：日本基準では未実現利益の税効果に「売った会社」の税率を使い、売った年の課税所得が上限です（IFRSは「買った会社（在庫を持つ会社）」の税率）。ほかにも評価差額や子会社の留保利益（将来の配当にかかる税金）など、連結特有の税効果があります。</p></div>
+    ${mq("親会社→子会社の販売で未実現利益50を消去した。税率30%のとき、連結の当期純利益はいくら減る？", ["50", "15", "35", "0"], 2, "繰延税金資産15を計上し、税金費用も15減るので、利益への影響は−50＋15＝−35（＝50×（1−30%））です。")}
+    ${cfo("連結の「税負担率」（法人税等合計÷税金等調整前当期純利益）が法定実効税率から大きくずれていたら、投資家や監査人から必ず理由を聞かれます。のれん償却（税効果なし）、海外子会社の税率の違い、繰延税金資産の回収可能性の見直しなどが典型的な理由です。CFOは「税率差異の内訳」を毎期説明できるようにしておきます。")}`,
+    mount(root) {
+      const el = (id) => $("#" + id, root);
+      let dir = "down";
+      const upd = () => {
+        const r = +el("s10r").value / 100, u = +el("s10u").value;
+        el("s10ro").textContent = pc(r, 0); el("s10uo").textContent = f0(u);
+        $$("#s10dir button", root).forEach((b) => b.classList.toggle("on", b.dataset.d === dir));
+        const dta = u * r, after = -u + dta, nciShare = dir === "up" ? (u - dta) * (1 - p.own) : 0;
+        el("s10k").innerHTML = kpiCards([["繰延税金資産", f0(dta), `未実現利益 × ${pc(r, 0)}`], ["連結の当期純利益への影響", sg(after), "税金のあと"],
+          ["うち非支配株主の負担", f0(nciShare), dir === "up" ? "税金のあとの金額 × 20%" : "ダウンストリームは0（全額親会社）"], ["親会社株主の利益への影響", sg(after + nciShare), ""]]);
+        const lines = [jtable([["dr", "売上原価", u], ["cr", "棚卸資産", u]]), jtable([["dr", "繰延税金資産", dta], ["cr", "法人税等調整額", dta]])];
+        if (dir === "up") lines.push(jtable([["dr", "非支配株主持分", nciShare], ["cr", "非支配株主に帰属する当期純利益", nciShare]]));
+        el("s10j").innerHTML = lines.join("");
+        el("s10n").textContent = dir === "up" ? "アップストリームは子会社のもうけを消すので、税金のあとの金額の20%を非支配株主にも負担してもらいます。" : "ダウンストリームは親会社のもうけなので、全額を親会社株主が負担します。";
+        const allow = p.icAR * t.allow_rate;
+        const cases = [["① 未実現利益（ダウン）", -u, dta], ["② 未実現利益（アップ）", -u, dta], ["③ 内部の売掛金の貸倒引当金（" + pc(t.allow_rate, 0) + "）", allow, -allow * r], ["④ のれん償却", -gwAm, 0]];
+        el("s10t").innerHTML = `<tr><th>ケース</th><th class="n">修正額（税金の前）</th><th class="n">税効果</th><th class="n">税金のあとの影響</th></tr>` +
+          cases.map(([l, a, b]) => `<tr><td>${l}</td><td class="n">${sg(a)}</td><td class="n">${sg(b)}</td><td class="n res">${sg(a + b)}</td></tr>`).join("");
+      };
+      ["s10r", "s10u"].forEach((i) => el(i).addEventListener("input", upd));
+      $$("#s10dir button", root).forEach((b) => b.addEventListener("click", () => { dir = b.dataset.d; upd(); }));
+      upd();
+    } };
+}
+
+function S11() {
+  const c = AD.cf, p = B.prm;
+  const fctrAll = SUBS.reduce((s, x) => s + T[x.code]["為替換算調整勘定"], 0);
+  const ni = CONS["当期純利益"], niP = CONS["親会社株主に帰属する当期純利益"], niN = CONS["非支配株主に帰属する当期純利益"];
+  const fctrP = CONS["為替換算調整勘定"], fctrN = fctrAll - fctrP;
+  const jp = D.fs.JP, nciOpen = SUBS.reduce((s, x) => s + (x.own < 1 ? D.fs[x.code]["資本金"] * x.HR * (1 - x.own) : 0), 0);
+  const se = [["期首残高", jp["資本金"], jp["期首利益剰余金"], 0, nciOpen], ["剰余金の配当", 0, -jp["配当金の支払"], 0, 0], ["親会社株主に帰属する当期純利益", 0, niP, 0, 0],
+    ["株主資本以外の項目の当期変動額（純額）", 0, 0, fctrP, CONS["非支配株主持分"] - nciOpen]];
+  const seEnd = [0, 1, 2, 3].map((k) => se.reduce((s, r) => s + r[k + 1], 0));
+  return { html: `${head("STEP11 上級", "連結キャッシュ・フロー計算書と包括利益", "")}
+    ${goal("各社のキャッシュ・フローを足してグループ内のお金の動きを消す流れが分かり、連結包括利益計算書・連結株主資本等変動計算書の意味が分かる")}
+    <div class="card"><p>キャッシュ・フロー計算書（CF）は、1年間のお金の出入りを「営業」「投資」「財務」に分けた表。連結CFも考え方はいつもと同じで、<b>① 各社のCFを全部足す → ② グループ内のお金のやりとりを消す</b>（<b>原則法</b>。実務では連結BS・PLから作る<b>簡便法</b>もよく使われます）。</p>
+      <p>ポイント：グループの外とのお金だけが残ります。S社の配当100のうちP社への80は消しますが、ほかの株主への20はグループの外へ出たお金なので<b>「非支配株主への配当金の支払額」</b>として財務CFに残ります。</p></div>
+    <div class="card"><h2>P社とS社の1年目のCF（要約）</h2>
+      <label class="sw" id="s11w"><input type="checkbox" id="s11c"><span><b>グループ内のお金のやりとりを消す</b>受取配当金80（P社の営業CF）と配当の支払80（S社の財務CF）。商品代金800は同じ営業CFの中で相殺されて0</span></label>
+      <div class="tbl-wrap" style="margin-top:10px"><table class="fs" id="s11t"></table></div><p class="note" id="s11n"></p></div>
+    <div class="card"><h2>グループ内のお金の動き：どれを消す？</h2><div class="tbl-wrap"><table class="fs"><tr><th>取引</th><th>P社のCF</th><th>S社のCF</th><th>連結では</th></tr>
+      <tr><td>商品代金（P社→S社の売上の代金${f0(c.ic_cash)}）</td><td class="small">営業：＋${f0(c.ic_cash)}</td><td class="small">営業：−${f0(c.ic_cash)}</td><td class="small">両方消す（合計への影響は0）</td></tr>
+      <tr><td>配当（S社→P社の${f0(c.div_to_p)}）</td><td class="small">営業：＋${f0(c.div_to_p)}（受取配当金）</td><td class="small">財務：−${f0(c.div_to_p)}</td><td class="small">両方消す</td></tr>
+      <tr><td>配当（S社→ほかの株主の${f0(c.div_to_nci)}）</td><td class="small">－</td><td class="small">財務：−${f0(c.div_to_nci)}</td><td class="small"><b>残す</b>（非支配株主への配当金の支払額）</td></tr>
+      <tr><td>貸付（10か国の例：親会社→ブラジル4,800）</td><td class="small">投資：貸付けによる支出</td><td class="small">財務：借入れによる収入</td><td class="small">貸した年は両方消す</td></tr></table></div>
+      <p class="note">発展：子会社を買った年は、投資CFに「連結の範囲の変更を伴う子会社株式の取得による支出」（払った金額−子会社が持っていた現金）を1行で表示します。また日本基準では、利息と配当金の区分を2つの方法から選べます。①受取利息・受取配当金・支払利息を営業CFに入れる（この教材のP社はこちら）、②受取利息・受取配当金は投資CF、支払利息は財務CFに入れる。どちらでも、配当金の支払額は財務CFです。</p></div>
+    <div class="card"><h2>もう1つの成績表：連結包括利益計算書（10か国グループ）</h2>
+      <p>包括利益は「純資産が、株主との取引（増資・配当など）以外でどれだけ増えたか」。当期純利益に、為替換算調整勘定の増減などの<b>その他の包括利益</b>を足したものです。</p>
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>項目</th><th class="n">金額（百万円）</th><th>読み方</th></tr>
+        <tr><td>当期純利益</td><td class="n">${f0(ni)}</td><td class="small muted">STEP7の連結PL</td></tr>
+        <tr><td>その他の包括利益：為替換算調整勘定</td><td class="n">${f0(fctrAll)}</td><td class="small muted">非支配株主の分も含めた当期の増加額</td></tr>
+        <tr class="tot"><td>包括利益</td><td class="n">${f0(ni + fctrAll)}</td><td></td></tr>
+        <tr><td>　うち 親会社株主に係る包括利益</td><td class="n">${f0(niP + fctrP)}</td><td class="small muted">${f0(niP)} ＋ ${f0(fctrP)}</td></tr>
+        <tr><td>　うち 非支配株主に係る包括利益</td><td class="n">${f0(niN + fctrN)}</td><td class="small muted">${f0(niN)} ＋ ${f0(fctrN)}</td></tr></table></div>
+      <h3>連結株主資本等変動計算書（純資産は1年でどう動いた？）</h3>
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>区分</th><th class="n">資本金</th><th class="n">利益剰余金</th><th class="n">為替換算調整勘定</th><th class="n">非支配株主持分</th><th class="n">純資産合計</th></tr>
+        ${se.map((r) => `<tr><td>${r[0]}</td>${r.slice(1).map((v) => `<td class="n">${fz(v)}</td>`).join("")}<td class="n">${fz(r.slice(1).reduce((s, v) => s + v, 0))}</td></tr>`).join("")}
+        <tr class="tot"><td>期末残高</td>${seEnd.map((v) => `<td class="n">${f0(v)}</td>`).join("")}<td class="n">${f0(seEnd.reduce((s, v) => s + v, 0))}</td></tr></table></div>
+      <p class="note">純資産の増加 ${f0(seEnd.reduce((s, v) => s + v, 0) - se[0].slice(1).reduce((s, v) => s + v, 0))} と包括利益 ${f0(ni + fctrAll)} の差は、親会社の配当 ${f0(jp["配当金の支払"])} と非支配株主への配当（株主との取引）。株主との取引は包括利益に入りません。</p></div>
+    ${mq("包括利益の説明として正しいものは？", ["純資産の増減の全体", "当期純利益＋その他の包括利益。増資・配当など株主との取引は含まない", "営業利益＋為替換算調整勘定", "親会社の個別の当期純利益"], 1, "包括利益は、株主との取引以外で純資産が増えた・減った分。10か国の例では35,349＋2,730＝38,079です。")}
+    ${mq("子会社が非支配株主に払った配当は、連結キャッシュ・フロー計算書のどこに出る？", ["営業活動", "投資活動", "財務活動（非支配株主への配当金の支払額）", "表示しない"], 2, "グループの外へ出ていったお金なので残します。親会社に払った分はグループ内なので消します。")}
+    ${cfo("利益は「意見」、キャッシュは「事実」と言われます。連結の利益が出ていても、子会社に在庫や売掛金が積み上がっていると営業CFは伸びません。CFOは毎月、連結の営業CFと利益の差（運転資本の増減）を国別に見て、資金が滞っている子会社に早めに手を打ちます。")}`,
+    mount(root) {
+      const draw = () => {
+        const on = $("#s11c", root).checked;
+        $("#s11w", root).classList.toggle("on", on);
+        const rows = [["営業活動によるCF", c.p.op, c.s.op, -c.div_to_p], ["投資活動によるCF", c.p.inv, c.s.inv, 0], ["財務活動によるCF", c.p.fin, c.s.fin, c.div_to_p]];
+        const tot = (k) => rows.reduce((s, r) => s + r[k], 0);
+        const elim = (r) => (on ? r[3] : 0);
+        let h = `<tr><th>区分</th><th class="n">P社</th><th class="n">S社</th><th class="n">単純合算</th><th class="n">グループ内を消す</th><th class="n">連結</th></tr>`;
+        rows.forEach((r) => { h += `<tr><td>${r[0]}</td><td class="n">${f0(r[1])}</td><td class="n">${f0(r[2])}</td><td class="n">${f0(r[1] + r[2])}</td><td class="n adj ${on && r[3] ? "flash" : ""}">${sg(elim(r))}</td><td class="n res">${f0(r[1] + r[2] + elim(r))}</td></tr>`; });
+        const net = [tot(1), tot(2)];
+        h += `<tr class="tot"><td>現金の増減</td><td class="n">${f0(net[0])}</td><td class="n">${f0(net[1])}</td><td class="n">${f0(net[0] + net[1])}</td><td class="n">${on ? "0" : "-"}</td><td class="n">${f0(net[0] + net[1])}</td></tr>`;
+        h += `<tr><td>期首の現金</td><td class="n">${f0(c.p.cash0)}</td><td class="n">${f0(c.s.cash0)}</td><td class="n">${f0(c.p.cash0 + c.s.cash0)}</td><td class="n">-</td><td class="n">${f0(c.p.cash0 + c.s.cash0)}</td></tr>`;
+        const end = c.p.cash0 + c.s.cash0 + net[0] + net[1];
+        h += `<tr class="tot"><td>期末の現金</td><td class="n">${f0(c.p.cash0 + net[0])}</td><td class="n">${f0(c.s.cash0 + net[1])}</td><td class="n">${f0(end)}</td><td class="n">-</td><td class="n res">${f0(end)}</td></tr>`;
+        $("#s11t", root).innerHTML = h;
+        const bsCash = B.P["現金預金"] + B.S["現金預金"];
+        $("#s11n", root).innerHTML = (on ? `連結の営業CF <b>${f0(rows[0][1] + rows[0][2] - c.div_to_p)}</b>、財務CF <b>${f0(rows[2][1] + rows[2][2] + c.div_to_p)}</b>（うち非支配株主への配当金の支払額 −${f0(c.div_to_nci)}）。消去の合計は0なので、現金の残高は変わりません。` : "スイッチを入れると、グループ内のお金のやりとりが消えます。") +
+          ` 期末の現金 ${f0(end)} ＝ 連結BSの現金預金 ${f0(bsCash)} ${Math.abs(end - bsCash) < 0.5 ? '<span class="check-ok">✔</span>' : '<span class="check-ng">✖</span>'}`;
+      };
+      $("#s11c", root).addEventListener("change", draw);
+      draw();
+    } };
+}
+
+function S5() {
+  const E = journal2();
+  return { html: `${head("STEP5", "連結精算表 ── 仕訳を1本ずつ反映して、連結を完成させよう", "")}
+    ${goal("連結精算表の読み方が分かり、修正仕訳から連結財務諸表（BS・PL）を完成させられるようになる")}
+    <div class="card"><p>連結精算表は「各社 → 単純合算 → 修正 → 連結」を横に並べた<b>連結の設計図</b>です。「次の仕訳」ボタンで、STEP2〜4で学んだ仕訳を1本ずつ反映してみましょう。<b>どの仕訳も左右が同じ金額なので、1本反映するたびに資産合計と負債・純資産合計は必ず一致</b>します。</p>
+      <p class="small muted">ルール：資産・費用は借方（左）で増え、負債・純資産・収益は貸方（右）で増える。PLの修正は最後に「利益剰余金」に流れ込む。</p>
+      <div class="btnrow"><button class="btn ghost" type="button" id="s5prev">◀ 1つ戻る</button><button class="btn" type="button" id="s5next">次の仕訳を反映 ▶</button>
+        <button class="btn ghost" type="button" id="s5all">全部反映</button><button class="btn ghost" type="button" id="s5reset">リセット</button><span id="s5cnt" class="pill acc"></span><span id="s5chk"></span></div>
+      <div id="s5cur" class="analogy"></div>
+      <div class="tbl-wrap"><table class="fs" id="s5t"></table></div></div>
+    <div class="card hide" id="s5fin"><h2>完成！ P社の利益は、連結でなぜこう変わる？（利益の橋わたし）</h2><div class="wf" id="s5wf"></div>
+      <p class="note">経営会議では「連結の利益が個別の利益とどう違うか」を必ず聞かれます。この橋わたし（ブリッジ）を説明できれば、連結を理解している証拠です。</p></div>
+    <p class="note">※実際の連結損益計算書では、のれん償却額は「販売費及び一般管理費」の中に含めて表示します（ここでは見やすくするために1行に分けています）。受取配当金などは「営業外収益」で、営業利益のあとに経常利益→特別損益→税金等調整前当期純利益→法人税等と続きます（この例では税金と特別損益がないので、経常利益＝当期純利益。税金があるときの形はSTEP10で学びます）。</p>
+    ${mq("連結精算表で「売上原価」の修正額はいくら？（内部取引の消去と未実現利益の両方）", ["−1,000", "−950", "+50", "−1,050"], 1, "内部の仕入を消して −1,000、未実現利益で +50。合計 −950。1つの行に2つの仕訳が関係することもあります。")}
+    ${cfo("連結システムを使っていても、中身はこの精算表と同じです。数字がおかしいときは「どの仕訳が、どの行を、いくら動かしたか」をさかのぼれば必ず原因が見つかります。")}`,
+    mount(root) {
+      let k = 0;
+      const P = B.P, S = B.S;
+      const pv = calc2(Object.fromEntries(L2.filter((x) => x[0] !== "sec" && !x[1]).map(([n]) => [n, P[n] || 0])));
+      const sv = calc2(Object.fromEntries(L2.filter((x) => x[0] !== "sec" && !x[1]).map(([n]) => [n, S[n] || 0])));
+      const agg = calc2(Object.fromEntries(L2.filter((x) => x[0] !== "sec" && !x[1]).map(([n]) => [n, (P[n] || 0) + (S[n] || 0)])));
+      const draw = () => {
+        const adj = calc2(effect(E.slice(0, k).map((e) => e.lines), TYPE2, calc2));
+        const prev = calc2(effect(E.slice(0, Math.max(0, k - 1)).map((e) => e.lines), TYPE2, calc2));
+        let h = `<tr><th>科目</th><th class="n">P社</th><th class="n">S社</th><th class="n">単純合算</th><th class="n">修正（ここまで）</th><th class="n">連結</th></tr>`;
+        L2.forEach(([n, t]) => {
+          if (n === "sec") { h += `<tr class="sec"><td colspan="6">${t}</td></tr>`; return; }
+          const a = adj[n] || 0, changed = k > 0 && Math.abs(a - (prev[n] || 0)) > 0.5;
+          h += `<tr class="${t ? "tot" : ""}"><td>${n}</td><td class="n">${fz(pv[n])}</td><td class="n">${fz(sv[n])}</td><td class="n">${fz(agg[n])}</td>
+            <td class="n adj ${changed ? "flash" : ""}">${sg(a)}</td><td class="n res ${changed ? "flash" : ""}">${fz(agg[n] + a)}</td></tr>`;
+        });
+        $("#s5t", root).innerHTML = h;
+        $("#s5cnt", root).textContent = `${k} / ${E.length} 本`;
+        const A = agg["資産合計"] + adj["資産合計"], LE = agg["負債・純資産合計"] + adj["負債・純資産合計"];
+        $("#s5chk", root).innerHTML = Math.abs(A - LE) < 0.5 ? `<span class="check-ok">✔ 資産合計 ${f0(A)} ＝ 負債・純資産合計 ${f0(LE)}</span>` : `<span class="check-ng">✖ 不一致</span>`;
+        $("#s5cur", root).innerHTML = k === 0 ? '<span class="lab">まだ何も消していません（＝単純合算の状態）</span>「次の仕訳を反映」を押してスタート！'
+          : `<span class="lab">${E[k - 1].cat}｜${E[k - 1].title}</span>${E[k - 1].note}${jtable(E[k - 1].lines)}`;
+        $("#s5prev", root).disabled = k === 0;
+        $("#s5next", root).disabled = k === E.length;
+        $("#s5fin", root).classList.toggle("hide", k !== E.length);
+        if (k === E.length) {
+          const p = B.prm, na = p.cap + p.re0, gw = p.price - na * p.own;
+          const steps = [["P社の当期純利益（個別）", P["当期純利益"], "base"], ["− S社から受け取った配当（グループ内）", -p.div * p.own], ["＋ S社の利益のうちP社の取り分（80%）", B.S["当期純利益"] * p.own],
+            ["− のれん償却額", -gw / p.years], ["− 未実現利益", -p.icInv * p.margin]];
+          const end = steps.reduce((s, x) => s + x[1], 0);
+          steps.push(["＝ 親会社株主に帰属する当期純利益", end, "base"]);
+          let run = 0;
+          const mx = Math.max(...steps.map((s) => (s[2] ? s[1] : 0)), P["当期純利益"] + B.S["当期純利益"]) * 1.05;
+          $("#s5wf", root).innerHTML = steps.map(([l, v, base]) => {
+            let left, width, c;
+            if (base) { left = 0; width = v; c = "c-gray"; run = v; } else { const s0 = run; run += v; left = Math.min(s0, run); width = Math.abs(v); c = v >= 0 ? "c-ok" : "c-acc"; }
+            return `<div class="row"><div>${l}</div><div class="track"><div class="blk ${c}" style="left:${left / mx * 100}%;width:${width / mx * 100}%"></div></div><div class="n mono" style="text-align:right;font-weight:700">${base ? f0(v) : sg(v)}</div></div>`;
+          }).join("") + `<p class="small ${Math.abs(end - (agg["親会社株主に帰属する当期純利益"] + adj["親会社株主に帰属する当期純利益"])) < 0.5 ? "check-ok" : "check-ng"}">✔ 精算表の「親会社株主に帰属する当期純利益」${f0(end)} と一致</p>`;
+        }
+      };
+      $("#s5next", root).addEventListener("click", () => { if (k < E.length) { k += 1; draw(); } });
+      $("#s5prev", root).addEventListener("click", () => { if (k > 0) { k -= 1; draw(); } });
+      $("#s5all", root).addEventListener("click", () => { k = E.length; draw(); });
+      $("#s5reset", root).addEventListener("click", () => { k = 0; draw(); });
+      draw();
+    } };
+}
+
+function S6() {
+  const usd = { 現金預金: 10, 売掛金: 20, 棚卸資産: 30, 有形固定資産: 40, 買掛金: 30, 借入金: 20, 資本金: 30, 売上高: 200, 売上原価: 150, 販売費及び一般管理費: 30 };
+  const ni = usd["売上高"] - usd["売上原価"] - usd["販売費及び一般管理費"];
+  return { html: `${head("STEP6", "外貨換算 ── ドルの決算書を円に直そう", "")}
+    ${goal("3つの為替レート（CR・AR・HR）の使い分けと、為替換算調整勘定が生まれる理由が分かるようになる")}
+    <div class="card"><p>海外の子会社は、その国のお金で決算書を作ります。ドルと円はそのままでは足せないので、単純合算の前に円に直します（換算）。ポイントは<b>どの時点のレートを使うか</b>。</p>
+      <div class="grid3"><div class="tile"><div class="t">BSは“今”</div><div class="s">資産・負債 → <b>決算日レート（CR）</b><br>期末の財産・借金は期末の価値で</div></div>
+        <div class="tile"><div class="t">PLは“平均”</div><div class="s">売上・費用 → <b>期中平均レート（AR）</b><br>1年かけて少しずつ発生したから</div></div>
+        <div class="tile"><div class="t">資本は“昔”</div><div class="s">資本金 → <b>取得時レート（HR）</b><br>出資したときの金額に合わせる</div></div></div>
+      <p style="margin-top:10px">使うレートがバラバラなので、円に直すと<b>BSの左右が合わなくなります</b>。その差額が <b>為替換算調整勘定</b>（英語：CTA / FCTR）。利益ではなく純資産（その他の包括利益累計額）に入ります。</p>
+      <p class="note">※この例は設立1年目なので「利益剰余金＝当期純利益（AR換算）」です。2年目以降は「前期末の円の金額＋当期純利益×AR−配当×配当を決めた日のレート」で積み上げます。また、このS社はSTEP1〜5とは別の練習用の会社です。</p></div>
+    <div class="card"><h2>スライダーで実験：S社（アメリカ）は前期末に100%出資で設立</h2>
+      <div class="ctrl"><label for="hr">HR 取得時（設立時）</label><input type="range" id="hr" min="100" max="170" value="130"><output id="hro"></output></div>
+      <div class="ctrl"><label for="ar">AR 期中平均</label><input type="range" id="ar" min="100" max="170" value="140"><output id="aro"></output></div>
+      <div class="ctrl"><label for="cr">CR 決算日（期末）</label><input type="range" id="cr" min="100" max="170" value="150"><output id="cro"></output></div>
+      <div class="btnrow"><button class="btn ghost" type="button" data-pre="weak">円安シナリオ（130→140→150）</button><button class="btn ghost" type="button" data-pre="strong">円高シナリオ（150→140→130）</button><button class="btn ghost" type="button" data-pre="flat">レートが変わらない（140）</button></div>
+      <div class="grid2"><div><div class="tbl-wrap"><table class="fs" id="s6t"></table></div></div>
+        <div><div class="barlab"><span>資産（CRで換算）</span><span id="s6a"></span></div><div class="hbar" id="s6b1"></div>
+          <div class="barlab"><span>負債＋資本金＋利益剰余金</span><span id="s6le"></span></div><div class="hbar" id="s6b2"></div>
+          <div class="legend"><span><i class="c-gray"></i>負債(CR)</span><span><i class="c-link"></i>資本金(HR)</span><span><i class="c-ok"></i>利益剰余金(AR)</span><span><i class="c-acc"></i>為替換算調整勘定（差額）</span></div>
+          <div id="s6x" class="analogy" style="margin-top:12px"></div></div></div></div>
+    ${mq("在外子会社の売上・費用（PL）は、原則としてどのレートで換算する？（日本基準）", ["決算日のレート", "期中平均レート", "取得時のレート", "毎月の月初のレート"], 1, "PLは“平均”。日本基準では決算日レートも認められていますが、原則は期中平均レートです。")}
+    ${cfo("海外売上の比率が高い会社ほど、円高・円安で連結の数字が大きく動きます。決算説明では「為替の影響を除くと（為替一定ベースで）売上は○%成長」と説明することが多く、CFOは毎月、為替の影響を分けて経営に報告します。BSの換算差額（為替換算調整勘定）は当期純利益に入りませんが、PLは期中平均レートで換算するので、レートが動けば円での利益も動きます。")}
+    <div class="card"><h2>発展：海外の会社を買ったときの「外貨建てのれん」</h2>
+      <p>例：アメリカの会社の100%を110百万ドルで買い、時価評価後の純資産が100百万ドル → のれん10百万ドル（10年償却）。のれんも“ドルで持っている”と考え、<b>期末残高はCR、償却額はAR</b>で換算します。</p>
+      <div class="tbl-wrap"><table class="fs nowrap1"><tr><th>項目</th><th class="n">百万ドル</th><th>レート</th><th class="n">百万円（130・140・150のとき）</th></tr>
+        <tr><td>取得時ののれん</td><td class="n">10</td><td>HR</td><td class="n">1,300</td></tr><tr><td>当期の償却額</td><td class="n">1</td><td>AR</td><td class="n">140</td></tr>
+        <tr><td>期末ののれん</td><td class="n">9</td><td>CR</td><td class="n">1,350</td></tr><tr class="tot"><td>換算差額（為替換算調整勘定）</td><td class="n">－</td><td>差額</td><td class="n">190</td></tr></table></div>
+      <p class="note">1,350 −（1,300 − 140）＝ 190。のれんは親会社の持分の分だけなので、この換算差額は全額が親会社株主の分（非支配株主には按分しない）。</p></div>`,
+    mount(root) {
+      const el = (id) => $("#" + id, root);
+      const upd = () => {
+        const hr = +el("hr").value, ar = +el("ar").value, cr = +el("cr").value;
+        el("hro").textContent = hr + "円"; el("aro").textContent = ar + "円"; el("cro").textContent = cr + "円";
+        const A = (usd["現金預金"] + usd["売掛金"] + usd["棚卸資産"] + usd["有形固定資産"]) * cr;
+        const L = (usd["買掛金"] + usd["借入金"]) * cr, cap = usd["資本金"] * hr, re = ni * ar, fx = A - L - cap - re;
+        const rows = [["sec", "貸借対照表（BS）"], ["現金預金", 10, "CR", 10 * cr], ["売掛金", 20, "CR", 20 * cr], ["棚卸資産", 30, "CR", 30 * cr], ["有形固定資産", 40, "CR", 40 * cr], ["資産合計", 100, "", A, 1],
+          ["買掛金", 30, "CR", 30 * cr], ["借入金", 20, "CR", 20 * cr], ["資本金", 30, "HR", cap], ["利益剰余金", ni, "AR", re], ["為替換算調整勘定", null, "差額", fx], ["負債・純資産合計", 100, "", A, 1],
+          ["sec", "損益計算書（PL）"], ["売上高", 200, "AR", 200 * ar], ["売上原価", 150, "AR", 150 * ar], ["販売費及び一般管理費", 30, "AR", 30 * ar], ["当期純利益", ni, "AR", re, 1]];
+        el("s6t").innerHTML = `<tr><th>科目</th><th class="n">百万ドル</th><th>レート</th><th class="n">百万円</th></tr>` + rows.map((r) => r[0] === "sec" ? `<tr class="sec"><td colspan="4">${r[1]}</td></tr>`
+          : `<tr class="${r[4] ? "tot" : ""}"><td>${r[0]}</td><td class="n">${r[1] == null ? "－" : f0(r[1])}</td><td class="small muted">${r[2]}</td><td class="n ${r[0] === "為替換算調整勘定" ? "adj flash" : ""} ${cls(r[3])}">${f0(r[3])}</td></tr>`).join("");
+        const lhs = L + cap + re, mx = Math.max(A, lhs);
+        const w = (v) => `${Math.max(v, 0) / mx * 100}%`;
+        el("s6a").textContent = f0(A);
+        el("s6le").textContent = f0(lhs) + "（差額 " + sg(fx) + "）";
+        el("s6b1").innerHTML = `<div class="c-gray" style="width:${w(A)}">資産 ${f0(A)}</div>` + (fx < 0 ? `<div class="c-acc" style="width:${w(-fx)}">${-fx > mx * 0.06 ? "差額 " + f0(fx) : ""}</div>` : "");
+        el("s6b2").innerHTML = `<div class="c-gray" style="width:${w(L)}">負債</div><div class="c-link" style="width:${w(cap)}">資本金</div><div class="c-ok" style="width:${w(re)}">利益</div>` + (fx > 0 ? `<div class="c-acc" style="width:${w(fx)}">${fx > mx * 0.06 ? "差額" : ""}</div>` : "");
+        el("s6x").innerHTML = `<span class="lab">為替換算調整勘定 ＝ ${sg(fx)} 百万円</span>` +
+          `資本金の分：30ドル ×（CR ${cr} − HR ${hr}）＝ ${sg(30 * (cr - hr))}<br>利益剰余金の分：${ni}ドル ×（CR ${cr} − AR ${ar}）＝ ${sg(ni * (cr - ar))}<br>` +
+          (fx > 0.5 ? "→ プラス：設立時より円安になり、子会社の純資産の“円での価値”が増えました。" : fx < -0.5 ? "→ マイナス：円高になり、子会社の純資産の“円での価値”が減りました。" : "→ レートが変わらなければ、差額は生まれません。");
+      };
+      ["hr", "ar", "cr"].forEach((i) => el(i).addEventListener("input", upd));
+      $$("[data-pre]", root).forEach((b) => b.addEventListener("click", () => {
+        const v = { weak: [130, 140, 150], strong: [150, 140, 130], flat: [140, 140, 140] }[b.dataset.pre];
+        el("hr").value = v[0]; el("ar").value = v[1]; el("cr").value = v[2]; upd();
+      }));
+      upd();
+    } };
+}
+
+function S7() {
+  const icRows = SUBS.map((c) => {
+    const t = T[c.code], ic = D.ic[c.code];
+    const subSide = ic.purch * c.AR, subAP = ic.ap * c.CR;
+    return `<tr><td>${c.country}（${c.ccy}）</td><td class="n">${f0(ic.sales)}</td><td class="n">${f0(subSide)}</td><td>${Math.abs(ic.sales - subSide) < 0.5 ? '<span class="check-ok">✔</span>' : '<span class="check-ng">✖</span>'}</td>
+      <td class="n">${f0(ic.ar)}</td><td class="n">${f0(subAP)}</td><td>${Math.abs(ic.ar - subAP) < 0.5 ? '<span class="check-ok">✔</span>' : '<span class="check-ng">✖</span>'}</td><td class="n">${f0(ic.inv * D.icMargin)}</td></tr>`;
+  }).join("");
+  return { html: `${head("STEP7", "10か国連結シミュレーター", "日本の親会社＋海外9社。5種類の連結修正をスイッチで入れたり切ったりして、グループの数字がどう変わるか体験しましょう。")}
+    ${goal("実務と同じ流れ（換算 → 合算 → 照合 → 修正 → 連結）で、10か国の連結決算を完成させる")}
+    <div class="kpis" id="k7"></div>
+    <div class="card"><h2>① 連結修正のスイッチ（まずは全部OFF＝単純合算から）</h2>
+      <div class="switches" id="sw7">${CATS.map((c) => `<label class="sw" data-k="${c.k}"><input type="checkbox" data-k="${c.k}"><span><b>${c.name}</b>${c.desc}</span></label>`).join("")}</div>
+      <div class="btnrow"><button class="btn" type="button" id="allOn">すべてON（連結完成）</button><button class="btn ghost" type="button" id="allOff">すべてOFF（単純合算）</button><span id="chk7"></span></div>
+      <div class="tbl-wrap"><table class="fs" id="t7"></table></div>
+      <p class="note">※「修正」はONにした区分の合計。どのスイッチの組み合わせでも、資産合計と負債・純資産合計は必ず一致します（どの仕訳も左右が同じ金額だから）。</p></div>
+    <div class="card"><h2>② 国別に見る（円換算・個別の数字）</h2>
+      <div class="seg" id="m7"><button type="button" data-m="sales" class="on">外部売上高</button><button type="button" data-m="ni">当期純利益</button><button type="button" data-m="fx">為替換算調整勘定</button></div>
+      <div class="cbars" id="cb7" style="margin-top:12px"></div><p class="note" id="cbn7"></p></div>
+    <div class="card"><h2>③ 内部取引の照合（IC照合）── 消す前に、両社の数字が合っているか確認</h2>
+      <div class="tbl-wrap"><table class="fs"><tr><th>子会社</th><th class="n">親：売上高</th><th class="n">子：仕入高(円)</th><th></th><th class="n">親：売掛金</th><th class="n">子：買掛金(円)</th><th></th><th class="n">未実現利益</th></tr>${icRows}</table></div>
+      <p class="note">子会社の数字は現地通貨×レート（仕入はAR、買掛金はCR）で円に直して比べます。この例ではすべて一致（✔）。実務では差異の原因を調べてから消去します。</p></div>
+    <div class="card"><h2>④ 為替感応度：円が全通貨に対して動いたら？</h2>
+      <div class="ctrl"><label for="fx7">円高（＋）／円安（−）</label><input type="range" id="fx7" min="-20" max="20" step="1" value="10"><output id="fx7o"></output></div>
+      <p class="note">円高10%＝レートが10%下がる（例：1ドル155円→139.5円）。<br>円安10%＝レートが10%上がる（例：1ドル155円→170.5円）。</p>
+      <div class="tbl-wrap"><table class="fs" id="fx7t"></table></div>
+      <p class="note">換算の影響だけを試算（現地通貨の数字は同じ、AR・CRだけが動くと仮定。当期純利益は各社の個別の数字で、非支配株主の分を含む）。実際には、グループ内の取引を円建てにしているので、円高になると子会社が払う円建ての仕入代金が現地通貨では高くなり、子会社の利益そのもの（取引の影響）も減ります。CFOは「換算」と「取引」を分けて分析します。</p></div>
+    <div class="card" id="c7"></div>
+    ${mq("10か国の連結で、単純合算の売上高から消える金額は何を表している？", ["為替の損失", "グループ内の売上（親会社→子会社への販売）", "非支配株主の取り分", "未払いの税金"], 1, "親会社から子会社への売上（約880億円）はグループ内の取引なので、連結では消去されます。")}
+    ${cfo("10か国の連結でも、やることはSTEP1〜6と同じです。違うのは「量」と「為替」。だからこそ実務では、①科目と締め日をそろえる、②内部取引を毎月照合する、③為替レートをグループで統一する、の3つのルールづくりが命です。")}`,
+    mount(root) {
+      const on = { inv: 0, nci: 0, div: 0, ic: 0, up: 0 };
+      let last = null, metric = "sales";
+      const draw = () => {
+        const { adj, res } = cons10(on);
+        $$("#sw7 .sw", root).forEach((s) => { s.classList.toggle("on", !!on[s.dataset.k]); $("input", s).checked = !!on[s.dataset.k]; });
+        const lastAdj = last ? cons10(Object.assign({}, on, { [last]: on[last] ? 0 : 1 })).res : null;
+        let h = `<tr><th>科目</th><th class="n">単純合算</th><th class="n">修正</th><th class="n">連結</th></tr>`;
+        L10.forEach(([n, t]) => {
+          if (n === "sec") { h += `<tr class="sec"><td colspan="4">${t}</td></tr>`; return; }
+          const ch = lastAdj && Math.abs(res[n] - lastAdj[n]) > 0.5;
+          h += `<tr class="${t ? "tot" : ""}"><td>${n}</td><td class="n">${fz(AGG10[n])}</td><td class="n adj ${ch ? "flash" : ""}">${sg(adj[n] || 0)}</td><td class="n res ${ch ? "flash" : ""} ${cls(res[n])}">${fz(res[n])}</td></tr>`;
+        });
+        $("#t7", root).innerHTML = h;
+        const okb = Math.abs(res["資産合計"] - res["負債・純資産合計"]) < 0.5;
+        $("#chk7", root).innerHTML = okb ? `<span class="check-ok">✔ 貸借一致（${f0(res["資産合計"])}）</span>` : '<span class="check-ng">✖ 不一致</span>';
+        const os = SUBS.reduce((s, c) => s + T[c.code]["売上高"], 0);
+        const allOn = CATS.every((c) => on[c.k]);
+        const kp = [[allOn ? "連結売上高" : "売上高（いまのスイッチの状態）", f0(res["売上高"]), allOn ? "グループの外への売上" : "（単純合算を含む途中の値）"],
+          ["営業利益", f0(res["営業利益"]), "売上高営業利益率 " + pc(res["営業利益"] / res["売上高"])],
+          [allOn ? "親会社株主に帰属する当期純利益" : "親会社株主に帰属する当期純利益（途中）", f0(res["親会社株主に帰属する当期純利益"]), allOn ? "グループの最終利益" : "全部ONでグループの最終利益"],
+          ["海外売上比率", allOn ? pc(os / res["売上高"]) : "－", allOn ? "海外子会社の売上 ÷ 連結売上" : "全部ONで計算"]];
+        $("#k7", root).innerHTML = kp.map(([l, v, d]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d muted">${d}</div></div>`).join("");
+      };
+      $$("#sw7 input", root).forEach((i) => i.addEventListener("change", () => { on[i.dataset.k] = i.checked ? 1 : 0; last = i.dataset.k; draw(); }));
+      $("#allOn", root).addEventListener("click", () => { CATS.forEach((c) => { on[c.k] = 1; }); last = null; draw(); });
+      $("#allOff", root).addEventListener("click", () => { CATS.forEach((c) => { on[c.k] = 0; }); last = null; draw(); });
+      const bars = () => {
+        $$("#m7 button", root).forEach((b) => b.classList.toggle("on", b.dataset.m === metric));
+        const vals = D.cos.map((c) => [c, metric === "sales" ? extSales(c.code) : metric === "ni" ? T[c.code]["当期純利益"] : T[c.code]["為替換算調整勘定"]]);
+        const mx = Math.max(...vals.map((v) => Math.abs(v[1]))) || 1;
+        const div = metric === "fx";
+        $("#cb7", root).innerHTML = vals.map(([c, v]) => {
+          const w = Math.abs(v) / mx * (div ? 50 : 100);
+          const left = div ? (v >= 0 ? 50 : 50 - w) : 0;
+          const col = div ? (v >= 0 ? "c-ok" : "c-acc") : c.code === "JP" ? "c-gray" : "c-acc";
+          return `<div class="row"><div>${c.country}<span class="muted small">（${c.ccy}）</span></div><div class="track">${div ? '<div class="mid"></div>' : ""}<div class="fill ${col}" style="left:${left}%;width:${w}%"></div></div><div class="val ${cls(v)}">${fz(v)}</div></div>`;
+        }).join("");
+        const tot = vals.reduce((s, v) => s + v[1], 0);
+        $("#cbn7", root).innerHTML = metric === "sales" ? `外部売上高の合計 ${f0(tot)} ＝ 連結売上高 ${f0(CONS["売上高"])}。親会社の売上からは子会社向けの売上を除いています。`
+          : metric === "ni" ? "各社の個別の当期純利益（円換算）。親会社の利益には子会社からの配当・利息が入っています（連結では消去）。"
+            : `円安で設立時より現地通貨が高くなった国はプラス、インド・ブラジルのように現地通貨が安くなった国はマイナス。グループ持分の合計 ${f0(CONS["為替換算調整勘定"])} が連結BSに載ります。`;
+      };
+      $$("#m7 button", root).forEach((b) => b.addEventListener("click", () => { metric = b.dataset.m; bars(); }));
+      const fxs = () => {
+        const s = +$("#fx7", root).value / 100;
+        $("#fx7o", root).textContent = (s > 0 ? "円高 " : s < 0 ? "円安 " : "") + Math.abs(s * 100) + "%";
+        const base = SUBS.map((c) => T[c.code]), sh = SUBS.map((c) => translate(c, s));
+        const sum = (arr, k) => arr.reduce((a, t) => a + t[k], 0);
+        const fxg = (arr) => arr.reduce((a, t, i) => a + t["為替換算調整勘定"] * SUBS[i].own, 0);
+        const rows = [["海外子会社の売上高（円換算）", sum(base, "売上高"), sum(sh, "売上高")], ["海外子会社の当期純利益（円換算）", sum(base, "当期純利益"), sum(sh, "当期純利益")],
+          ["為替換算調整勘定（グループ持分）", fxg(base), fxg(sh)]];
+        $("#fx7t", root).innerHTML = `<tr><th>項目</th><th class="n">いま</th><th class="n">動いたあと</th><th class="n">影響額</th></tr>` + rows.map(([l, a, b]) =>
+          `<tr><td>${l}</td><td class="n">${f0(a)}</td><td class="n res">${f0(b)}</td><td class="n ${cls(b - a)}">${sg(b - a)}</td></tr>`).join("");
+      };
+      $("#fx7", root).addEventListener("input", fxs);
+      const up = SUBS.reduce((s, c) => s + D.ic[c.code].inv * D.icMargin, 0);
+      const icS = SUBS.reduce((s, c) => s + D.ic[c.code].sales, 0);
+      const os = SUBS.reduce((s, c) => s + T[c.code]["売上高"], 0);
+      $("#c7", root).innerHTML = `<h2>⑤ CFOの分析コメント（全部ONのとき）</h2><ol>
+        <li>連結売上高は <b>${f0(CONS["売上高"])}</b>百万円。単純合算 ${f0(AGG10["売上高"])} から、グループ内の売上 ${f0(icS)}（${pc(icS / AGG10["売上高"])}）を消去しました。</li>
+        <li>海外売上比率は <b>${pc(os / CONS["売上高"])}</b>。稼ぎの多くは海外にあり、為替が業績を大きく左右する体質です。</li>
+        <li>在庫の未実現利益で利益が ${f0(up)} 減少。子会社の在庫が増えると、連結の利益は個別の合計より小さくなります。</li>
+        <li>為替換算調整勘定は <b>${f0(CONS["為替換算調整勘定"])}</b>。円安でプラスの国が多い一方、インド・ブラジルは現地通貨安でマイナス。</li>
+        <li>親会社株主に帰属する当期純利益は <b>${f0(CONS["親会社株主に帰属する当期純利益"])}</b>。合弁相手の取り分 ${f0(CONS["非支配株主に帰属する当期純利益"])} を差し引いた最終利益です。</li></ol>`;
+      draw(); bars(); fxs();
+    } };
+}
+
+function Quiz() {
+  return { html: `${head("TEST", `確認クイズ（${D.quiz.length}問）`, "1問ずつ答えて、解説を読んで、次へ。最後に得点と「間違えた問題の振り返り」が出ます。")}
+    <div class="card" id="qz"></div>`,
+    mount(root) {
+      LearnQuiz($("#qz", root), D.quiz.map((q, k) => ({ ...q, no: k + 1 })), { store, key: "best",
+        msg: (score, n) => score === n ? "満点！ 連結決算マスターです。おめでとうございます！" : score >= Math.round(n * 0.8) ? "すばらしい！ 実務でも通用する理解です。" : score >= Math.round(n * 0.55) ? "いい調子！ まちがえた問題のレッスンを復習しよう。" : "もう一度、STEP1から見直してみよう。必ずできるようになります。" });
+    } };
+}
+
+function Notes() {
+  const cal = [["1〜3営業日", "各社の月次締め（現地）", "締めのルール（いつまでの取引を入れるか）がそろっているか"], ["4営業日", "連結パッケージの提出（子会社→本社）", "期限どおりか／BSの左右・利益剰余金の“つじつま”は合っているか"],
+    ["5営業日", "IC照合・差異の解消", "差異の大きい順に原因を特定しているか"], ["6営業日", "為替換算・単純合算", "グループ統一の為替レートを使っているか"], ["7営業日", "連結修正仕訳", "新しい取引（貸付・増資・M&Aなど）の仕訳もれはないか"],
+    ["8営業日", "連結財務諸表の作成・分析（FP&A）", "予算比・前年比・為替の影響を分けて説明できるか"], ["9営業日", "CFOレビュー", "異常な数字に、きちんと説明がつくか"], ["10営業日", "経営会議で報告", "数字の背景と、次のアクションまで示せているか"],
+    ["四半期・年度末", "監査対応・開示（決算短信は決算後45日以内が目安）", "注記やセグメント情報もそろっているか"]];
+  const mis = [["IC差異の放置", "連結の売上や利益が正しく消えず、数字がずれる", "毎月、差異リストを作り、期限を決めてゼロにする"], ["為替レートの不統一", "会社ごとに違うレートを使い、数字がずれる", "本社が「グループ統一レート表」を毎月配る"],
+    ["勘定科目の対応ミス", "足し算の段階で数字がおかしくなる", "グループ勘定科目表と各国の科目の対応表を整備"], ["未実現利益の計算もれ", "利益が実際より大きく見える", "在庫のうち「グループ会社から仕入れた分」を必ず報告させる"],
+    ["非支配株主持分の計算もれ", "親会社株主の利益が大きく見える", "合弁会社のリストと持分比率を毎期確認する"], ["子会社の決算日のずれを放置", "重要な取引が連結から抜ける", "ずれが3か月以内でも、重要な取引は調整する"],
+    ["開始仕訳の引き継ぎもれ", "2年目以降の純資産がずれる", "開始仕訳をテンプレート化し、前期の連結と照合する"]];
+  const dif = [["のれん", "20年以内で規則的に償却。減損の兆候があれば減損テストも", "償却しない。兆候がなくても毎年、減損テスト"], ["非支配株主持分の測定", "子会社の資本（時価評価後）×非支配株主の持分比率（のれんは親会社の持分の分だけ＝購入のれん方式）", "公正価値（全部のれん）か比例持分かを買収ごとに選べる"],
+    ["最終利益の名前", "親会社株主に帰属する当期純利益", "親会社の所有者に帰属する当期利益"], ["為替換算調整勘定の表示", "純資産の「その他の包括利益累計額」", "資本の「その他の資本の構成要素」"],
+    ["在外子会社のPLの換算", "原則 期中平均（決算日レートも可）", "取引日のレート（近似として期中平均も可）"], ["子会社の決算日のずれ", "3か月以内なら子会社の決算を使える（重要な取引は調整）", "原則そろえる。むずかしければ3か月以内で調整"],
+    ["負ののれん", "資産・負債の評価を見直したうえで、発生した年の利益（特別利益）", "割安購入益として純損益"], ["未実現利益の税効果", "売った会社の税率を使う", "買った会社（在庫を持つ会社）の税率を使う"]];
+  const pkg = ["個別財務諸表（BS・PL）と、グループ勘定科目表に合わせた科目の明細", "内部取引の明細：相手先の会社ごとの売上・仕入・債権債務・貸付・借入・利息・配当",
+    "在庫のうち、グループ会社から仕入れた分（未実現利益の計算用）", "固定資産・引当金などの増減明細、税金の計算資料（税効果会計）", "セグメント情報（事業別・地域別）の材料", "後発事象・偶発債務・重要な契約など、注記の材料"];
+  return { html: `${head("実務", "CFOの実務ノート ── 現場の連結決算はこう回っている", "教科書には出てこない、実務の流れ・よくあるミス・日本基準とIFRSのちがい。")}
+    <div class="card"><h2>月次の連結決算カレンダー（例：10営業日で締める会社）</h2><div class="tl">${cal.map(([d, w, p]) => `<div class="it"><div class="d">${d}</div><b>${w}</b><div class="small muted">CFOのチェック：${p}</div></div>`).join("")}</div></div>
+    <div class="card"><h2>連結パッケージ（子会社から集めるデータ）の中身</h2><ul>${pkg.map((x) => `<li>${x}</li>`).join("")}</ul></div>
+    <div class="card"><h2>よくあるミスと対策</h2><div class="tbl-wrap"><table class="fs"><tr><th>よくあるミス</th><th>何が起きる？</th><th>対策</th></tr>${mis.map((r) => `<tr><td><b>${r[0]}</b></td><td class="small">${r[1]}</td><td class="small">${r[2]}</td></tr>`).join("")}</table></div></div>
+    <div class="card"><h2>日本基準とIFRSのちがい（連結まわり）</h2><div class="tbl-wrap"><table class="fs"><tr><th>項目</th><th>日本基準</th><th>IFRS</th></tr>${dif.map((r) => `<tr><td><b>${r[0]}</b></td><td class="small">${r[1]}</td><td class="small">${r[2]}</td></tr>`).join("")}</table></div>
+      <p class="note">※海外子会社がIFRSや米国基準で決算書を作っている場合は、それをそのまま連結に使えます。ただし、のれんの償却など一部の項目は日本基準に合わせて修正します（実務対応報告第18号）。</p>
+      <p class="note">※会計基準は改正されることがあります。のれんの会計処理（償却や開示のあり方）なども企業会計基準委員会（ASBJ）で検討テーマとして取り上げられています。実務では最新の基準と会社の会計方針を必ず確認してください。</p></div>
+    <div class="grid2"><div class="card"><h2>CFOが必ず見るポイント</h2><ul><li>為替の影響を分ける（為替一定ベースの成長率）</li><li>地域別の収益性：どの国が稼いでいるか</li><li>グループ在庫と未実現利益</li><li>のれんと減損の兆候</li><li>非支配株主の取り分</li><li>内部取引差異の推移</li><li>税負担率と法定実効税率のずれ</li></ul></div>
+      <div class="card"><h2>この教材のあとに学ぶと良いこと</h2><ul><li>支配の喪失・段階取得（追加取得・一部売却の基本はSTEP8で学習済み）</li><li>評価差額にかかる税効果の仕訳と、その後の取り崩し（基本はSTEP2・STEP10で学習済み）</li><li>セグメント情報の作り方（マネジメント・アプローチ）</li><li>グループ通算制度と連結の税金計算</li><li>IFRS第18号（2027年1月以後開始する事業年度から）など表示ルールの改正</li></ul></div></div>
+    ${cfo("連結決算は「ルールを覚える」より「流れをつかむ」ことが大切です。足す → 消す → 説明する。この3つを毎月くり返すうちに、グループ全体のお金の流れが手に取るように見えてきます。")}` };
+}
+
+function Gloss() {
+  return { html: `${head("辞書", "用語集（英語つき）", "グローバル企業では英語で会話することも多いので、英語もいっしょに覚えておくと便利です。")}
+    <input class="search" id="gq" type="search" placeholder="用語・英語・意味で検索（例：のれん、NCI、為替）" aria-label="用語を検索">
+    <div class="tbl-wrap" style="margin-top:12px"><table class="fs" id="gt"></table></div>`,
+    mount(root) {
+      const draw = () => {
+        const q = $("#gq", root).value.trim().toLowerCase();
+        const rows = D.gloss.filter((g) => !q || g.join(" ").toLowerCase().includes(q));
+        $("#gt", root).innerHTML = `<tr><th>用語</th><th>英語</th><th>意味（やさしく）</th><th>ポイント</th></tr>` + (rows.length ? rows.map((g) =>
+          `<tr><td><b>${g[0]}</b><div class="small muted">${g[1]}</div></td><td class="small">${g[2]}</td><td>${g[3]}</td><td class="small muted">${g[4]}</td></tr>`).join("") : '<tr><td colspan="4" class="muted">見つかりませんでした</td></tr>');
+      };
+      $("#gq", root).addEventListener("input", draw);
+      draw();
+    } };
+}
+
+const LESSONS = [
+  { id: "welcome", tag: "START", grp: "はじめに", title: "ようこそ", desc: "", r: Welcome },
+  { id: "what", tag: "入門", grp: "はじめに", title: "連結決算ってなに？", desc: "目的と「二重計上を消す」考え方", r: What },
+  { id: "group", tag: "舞台", grp: "はじめに", title: "10か国のグループ紹介", desc: "サクラ・グローバル・グループの全体像", r: Group },
+  { id: "s1", tag: "STEP1", grp: "基礎（2社で練習）", title: "単純合算", desc: "まずは全部足す。どこが二重？", r: S1 },
+  { id: "s2", tag: "STEP2", grp: "基礎（2社で練習）", title: "投資と資本の相殺消去", desc: "のれん・非支配株主持分をスライダーで", r: S2 },
+  { id: "s3", tag: "STEP3", grp: "基礎（2社で練習）", title: "内部取引の消去", desc: "売上と仕入・債権債務・配当", r: S3 },
+  { id: "s4", tag: "STEP4", grp: "基礎（2社で練習）", title: "未実現利益の消去", desc: "在庫に残ったグループ内のもうけ", r: S4 },
+  { id: "s5", tag: "STEP5", grp: "基礎（2社で練習）", title: "連結精算表で仕上げ", desc: "仕訳を1本ずつ反映して完成", r: S5 },
+  { id: "s6", tag: "STEP6", grp: "グローバル", title: "外貨換算", desc: "CR・AR・HRと為替換算調整勘定", r: S6 },
+  { id: "s7", tag: "STEP7", grp: "グローバル", title: "10か国連結シミュレーター", desc: "5種類の消去をON/OFF・為替感応度", r: S7 },
+  { id: "s8", tag: "STEP8", grp: "上級（実務の連結）", title: "2年目の連結（開始仕訳）", desc: "前の年の修正を引き継ぐ・タイムテーブル", r: S8 },
+  { id: "s9", tag: "STEP9", grp: "上級（実務の連結）", title: "持分法（関連会社）", desc: "投資を1行で増減する“一行連結”", r: S9 },
+  { id: "s10", tag: "STEP10", grp: "上級（実務の連結）", title: "税効果", desc: "連結の修正にかかる税金のずれ", r: S10 },
+  { id: "s11", tag: "STEP11", grp: "上級（実務の連結）", title: "連結CFと包括利益", desc: "キャッシュ・フロー・包括利益・純資産の動き", r: S11 },
+  { id: "quiz", tag: "TEST", grp: "仕上げ", title: `確認クイズ（${D.quiz.length}問）`, desc: "理解度チェック", r: Quiz },
+  { id: "notes", tag: "実務", grp: "仕上げ", title: "CFOの実務ノート", desc: "カレンダー・よくあるミス・IFRS", r: Notes },
+  { id: "gloss", tag: "辞書", grp: "仕上げ", title: "用語集", desc: "日本語・英語で検索", r: Gloss },
+];
+const XL_SHEETS = { what: "1 連結とは", group: "STEP7-1 グループ概要", s1: "STEP1 単純合算", s2: "STEP2 投資と資本", s3: "STEP3 内部取引", s4: "STEP4 未実現利益",
+  s5: "STEP5 連結精算表", s6: "STEP6 外貨換算", s7: "STEP7-1〜7-7", s8: "STEP8 2年目の連結", s9: "STEP9 持分法", s10: "STEP10 税効果", s11: "STEP11 連結CFと包括利益",
+  quiz: "確認テスト", notes: "CFO実務メモ", gloss: "2 用語集" };
+
+function renderNav() {
+  let g = "", h = "";
+  LESSONS.forEach((l) => {
+    if (l.grp !== g) { g = l.grp; h += `<div class="grp">${g}</div>`; }
+    h += `<button type="button" class="${l.id === current ? "active" : ""}"${l.id === current ? ' aria-current="page"' : ""} data-go="${l.id}"><span class="tag">${l.tag}</span><span>${l.title}</span>${done[l.id] ? '<span class="ck">✓</span>' : ""}</button>`;
+  });
+  nav.innerHTML = h;
+  const n = LESSONS.filter((l) => done[l.id]).length;
+  $("#progbar").style.width = (n / LESSONS.length) * 100 + "%";
+  $("#progtxt").textContent = `${n} / ${LESSONS.length} 完了`;
+}
+function go(id) {
+  const L = LESSONS.find((x) => x.id === id) || LESSONS[0];
+  current = L.id;
+  store.set("current", current);
+  if (window.LearnShell) LearnShell.sync(L.id, L.title);
+  renderNav();
+  const out = L.r();
+  const i = LESSONS.indexOf(L), prev = LESSONS[i - 1], next = LESSONS[i + 1];
+  main.innerHTML = out.html + `<div class="next-row">
+    <button class="btn ghost" type="button" ${prev ? `data-go="${prev.id}"` : "disabled"}>◀ ${prev ? prev.title : "前へ"}</button>
+    <button class="btn ghost" type="button" data-toggle-done="${L.id}">${done[L.id] ? "✓ 完了済み（取り消す）" : "このレッスンを完了にする"}</button>
+    ${next ? `<button class="btn" type="button" data-go="${next.id}" data-complete="${L.id}">完了して次へ：${next.title} ▶</button>` : `<button class="btn" type="button" data-complete="${L.id}" data-go="welcome">完了してトップへ</button>`}</div>`;
+  if (window.LearnShell && LearnShell.xlRef && XL_SHEETS[L.id]) LearnShell.xlRef(main, XL_SHEETS[L.id]);
+  if (out.mount) out.mount(main);
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", (e) => {
+  const opt = e.target.closest(".quiz .opt");
+  if (opt) {
+    const box = opt.closest(".quiz"), ans = +box.dataset.ans, i = +opt.dataset.i;
+    $$(".opt", box).forEach((b) => b.classList.remove("right", "wrong"));
+    opt.classList.add(i === ans ? "right" : "wrong");
+    if (i !== ans) $$(".opt", box)[ans].classList.add("right");
+    $(".fb", box).classList.add("show");
+    return;
+  }
+  const td = e.target.closest("[data-toggle-done]");
+  if (td) { const id = td.dataset.toggleDone; done[id] = !done[id]; store.set("done", done); renderNav(); td.textContent = done[id] ? "✓ 完了済み（取り消す）" : "このレッスンを完了にする"; return; }
+  const g = e.target.closest("[data-go]");
+  if (g && g.dataset.go) {
+    e.preventDefault();
+    if (g.dataset.complete) { done[g.dataset.complete] = true; store.set("done", done); }
+    go(g.dataset.go);
+  }
+});
+$("#themeBtn").addEventListener("click", () => {
+  const el = document.documentElement;
+  el.setAttribute("data-theme", el.getAttribute("data-theme") === "dark" ? "light" : "dark");
+});
+go(window.LearnShell ? LearnShell.start(LESSONS, current) : current);
+
+</script>
+</body>
+</html>
